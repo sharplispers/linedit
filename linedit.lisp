@@ -79,3 +79,23 @@
     (unless (member history '(nil t))
       (save-history history))
     (line)))
+
+
+(defun formedit (&rest keyword-args
+		&key (prompt "> ") (prompt2 "| ")
+		&allow-other-keys)
+  (declare (optimize (debug 3)))
+  (catch 'form
+    (let ((eof-marker (cons nil nil))
+	  (saved-read-eval *read-eval*)
+	  (*read-eval* nil))
+      (do ((str (linedit :prompt prompt) 
+		(concat str " " (linedit :prompt prompt2))))
+	  ((let ((form (handler-case (read-from-string str)
+			(end-of-file () eof-marker))))
+	     (unless (eq eof-marker form)
+	       (throw 'form (let ((*read-eval* saved-read-eval))
+			      (multiple-value-bind (form n)
+				  (read-from-string str)
+				(values form (subseq str n))))))))
+	(terpri)))))

@@ -46,7 +46,7 @@
   (:use :cl :linedit-util :linedit-termios)
   (:export
    #:linedit
-   #:expedit
+   #:formedit
    #:defkey
    #:*insert*
    #:*word-delimiters*

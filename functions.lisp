@@ -195,7 +195,7 @@
 		     max (max max (length name))
 		     (gethash name hash) name))))
       (when (plusp length)
-	(if colon
+	(if colon	    
 	    (let* ((i (1+ colon))
 		   (n (- length i)))
 	      (do-external-symbols
