@@ -44,19 +44,24 @@ a string. Assumes standard readtable."
 	    (table (copy-readtable)))
 	;; FIXME: It would be nice to provide an interace of some sort that
 	;; the user could use to alter the crucial reader macros in custom readtables.
+	(set-macro-character #\: #'colon-reader nil table)
+	(set-macro-character #\, (constantly (values)) nil table)
 	(set-macro-character #\; #'semicolon-reader nil table)
 	(set-dispatch-macro-character #\# #\. (constantly (values)) table)
 	(do ((str (apply #'linedit :prompt prompt1 args)
 		  (concat str
 			  (string #\newline)
 			  (apply #'linedit :prompt prompt2 args))))
-	    ((let ((form (handler-case (let ((*readtable* table))
+	    ((let ((form (handler-case (let ((*readtable* table)
+					     (*package* (make-package "LINEDIT-SCRATCH")))
 					 ;; KLUDGE: This is needed to handle input that starts
 					 ;; with an empty line. (At least in the presense of
 					 ;; ACLREPL).
-					 (if (find-if-not 'whitespacep str)
-					     (read-from-string str)
-					     (error 'end-of-file)))
+					 (unwind-protect
+					      (if (find-if-not 'whitespacep str)
+						  (read-from-string str)
+						  (error 'end-of-file))
+					   (delete-package *package*)))
 			   (end-of-file () 
 			     eof-marker))))
 	       (unless (eq eof-marker form)
@@ -67,3 +72,7 @@ a string. Assumes standard readtable."
   (loop for char = (read-char stream)
 	until (eql char #\newline))
   (values))
+
+(defun colon-reader (stream char)
+  (declare (ignore char))
+  (read stream t nil t))

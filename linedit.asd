@@ -48,8 +48,8 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.15.7"
-    :depends-on (:uffi :terminfo)
+    :version "0.15.8"
+    :depends-on (:uffi :terminfo :osicat)
     :components
   (;; Common
    (:file "packages")

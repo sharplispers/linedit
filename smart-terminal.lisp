@@ -22,9 +22,7 @@
 (in-package :linedit)
 
 (defclass smart-terminal (terminal)
-  ((old-row :initform 1 :accessor old-row)
-   (old-col :initform 0 :accessor old-col)
-   (old-point :initform 0 :accessor old-point)
+  ((old-point :initform 0 :accessor old-point)
    (old-string :initform "" :accessor old-string)
    (old-markup :initform 0 :accessor old-markup)))
 
@@ -78,13 +76,18 @@
   (let* ((*terminal-io* *standard-output*)
 	 (columns (backend-columns backend))
 	 (old-markup (old-markup backend))
-	 (old-col (old-col backend))
-	 (old-row (old-row backend))
 	 (old-point (old-point backend))
+	 (old-col (find-col old-point columns))
+	 (old-row (find-row old-point columns))
 	 (old (old-string backend))
 	 (new (concat prompt line))
 	 (end (length new))
 	 (rows (find-row end columns)))
+    (when (dirty-p backend)
+      (setf old-markup 0
+	    old-point 0
+	    old-col 0
+	    old-row 1))
     (multiple-value-bind (marked-line markup)
 	(if markup
 	    (dwim-mark-parens line point 
@@ -115,9 +118,8 @@
 	   :vertical (- rows point-row)
 	   :current-col (find-col end columns))
 	  ;; Save state
-	  (setf (old-row backend) point-row
-		(old-col backend) point-col
-		(old-string backend) new
+	  (setf	(old-string backend) new
 		(old-markup backend) markup
-		(old-point backend) point)))
+		(old-point backend) point
+		(dirty-p backend) nil)))
     (force-output *terminal-io*)))

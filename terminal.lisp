@@ -22,7 +22,8 @@
 (in-package :linedit)
 
 (defclass terminal (backend)
-  ((translations :initform *terminal-translations*)))
+  ((translations :initform *terminal-translations*)
+   (dirty-p :initform t :accessor dirty-p)))
 
 (uffi:def-function ("linedit_terminal_columns" c-terminal-columns)
     ((default :int))
@@ -144,7 +145,7 @@
   (newline backend))
 
 (defmethod newline ((backend terminal))
-  (setf (get-start backend) 0)
+  (setf (dirty-p backend) t)
   (write-char #\newline)
   (write-char #\return)
   (force-output))

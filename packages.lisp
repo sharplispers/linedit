@@ -20,7 +20,7 @@
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (defpackage :linedit
-  (:use :cl)
+  (:use :cl :osicat)
   (:export
    #:linedit
    #:formedit
