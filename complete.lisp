@@ -1,23 +1,23 @@
-;; Copyright (c) 2003 Nikodemus Siivola
-;; 
-;; Permission is hereby granted, free of charge, to any person obtaining
-;; a copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
-;; 
-;; The above copyright notice and this permission notice shall be included
-;; in all copies or substantial portions of the Software.
-;; 
-;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+;;;; Copyright (c) 2003, 2004 Nikodemus Siivola, Julian S. Quires
+;;;;
+;;;; Permission is hereby granted, free of charge, to any person obtaining
+;;;; a copy of this software and associated documentation files (the
+;;;; "Software"), to deal in the Software without restriction, including
+;;;; without limitation the rights to use, copy, modify, merge, publish,
+;;;; distribute, sublicense, and/or sell copies of the Software, and to
+;;;; permit persons to whom the Software is furnished to do so, subject to
+;;;; the following conditions:
+;;;;
+;;;; The above copyright notice and this permission notice shall be included
+;;;; in all copies or substantial portions of the Software.
+;;;;
+;;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+;;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+;;;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+;;;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+;;;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+;;;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (in-package :linedit)
 
@@ -30,14 +30,6 @@
     (:directory t)
     (:symbolic-link 
      (file-kind (merge-pathnames (read-link pathname) pathname)))))
-
-;;; KLUDGE: now exported from Osicat, but will work with older versions
-;;; for a while.
-#.(when (eq (find-package :osicat) (symbol-package 'relative-pathname-p))
-    '(defun relative-pathname-p (pathname)
-      (let ((dir (pathname-directory pathname)))
-	(or (null dir)
-	    (eq :relative (car dir))))))
 
 (defun logical-pathname-p (pathname)
   (typep (pathname pathname) 'logical-pathname))
@@ -87,9 +79,9 @@
 		      (return (values all max))
 		      (return (values (list common) (length common))))))))))))))))
 
-;; We can't easily do zsh-style tab-completion of ~us into ~user, but
-;; at least we can expand ~ and ~user.  The other bug here at the
-;; moment is that ~nonexistant will complete to the same as ~.
+;;; We can't easily do zsh-style tab-completion of ~us into ~user, but
+;;; at least we can expand ~ and ~user.  The other bug here at the
+;;; moment is that ~nonexistant will complete to the same as ~.
 (defun tilde-expand-string (string)
   "Returns the supplied string, with a prefix of ~ or ~user expanded
 to the appropriate home directory."
@@ -100,7 +92,7 @@ to the appropriate home directory."
 				when (eql (schar string i) #\/) return i))
 	       (suffix (and slash-idx (subseq string slash-idx)))
 	       (uname (subseq string 1 slash-idx))
-	       (homedir (or (cdr (assoc :home (osicat:user-info uname)))
+	       (homedir (or (cdr (assoc :home (user-info uname)))
 			    (chop (namestring (user-homedir-pathname))))))
 	(concatenate 'string homedir (or suffix ""))))
       string))
