@@ -29,12 +29,12 @@
 
 (defmethod output-files ((o compile-op) (c c-source-file))
   (list (make-pathname :name (component-name c)
-		       :type "o"
+		       :type "so"
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c c-source-file))
   (dolist (f (input-files o c))
-    (load-1-foreign f)))
+    (sb-alien:load-1-foreign f)))
 
 (defmethod perform ((o compile-op) (c c-source-file))
   (unless (zerop (run-shell-command "~A ~A -shared -fpic -o ~A"
