@@ -29,7 +29,6 @@
   (every (lambda (key)
 	   (ti:capability key)) '(:cursor-up :cursor-down :clr-eos
 				  :column-address :auto-right-margin)))
-
 (defmethod backend-init ((backend smart-terminal))
   (call-next-method)
   (ti:tputs ti:enter-am-mode))

@@ -61,7 +61,7 @@ linedit_terminal_init (void)
     return linedit_TCGETATTR_ERROR;
 
   cfmakeraw (&tmp);
-  tmp.c_lflag &= ~ECHO;
+  tmp.c_oflag |= OPOST;
 
   if (0 > tcsetattr (STDIN_FILENO, TCSAFLUSH, &tmp))
     return linedit_TCSETATTR_ERROR;
