@@ -21,7 +21,10 @@
 
 (declaim (optimize (debug 3) (safety 3)))
 
-(in-package :asdf)
+(defpackage :linedit-system
+  (:use :cl :asdf))
+
+(in-package :linedit-system)
 
 (defvar *gcc* "/usr/bin/gcc")
 
@@ -29,17 +32,20 @@
 			#+darwin "-bundle"
 			"-fPIC"))
 
-(defmethod output-files ((o compile-op) (c c-source-file))
+;;; Separate class so that we don't mess up other packages
+(defclass uffi-c-source-file (c-source-file) ())
+
+(defmethod output-files ((o compile-op) (c uffi-c-source-file))
   (list (make-pathname :name (component-name c)
 		       :type "so"
 		       :defaults (component-pathname c))))
 
-(defmethod perform ((o load-op) (c c-source-file))
+(defmethod perform ((o load-op) (c uffi-c-source-file))
   (let ((loader (intern "LOAD-FOREIGN-LIBRARY" :uffi)))
-    (dolist (f (input-files o c))
+    (dolist (f (asdf::input-files o c))
       (funcall loader f))))
 
-(defmethod perform ((o compile-op) (c c-source-file))
+(defmethod perform ((o compile-op) (c uffi-c-source-file))
   (unless (zerop (run-shell-command "~A ~A ~{~A ~}-o ~A"
 				    *gcc*
 				    (namestring (component-pathname c))
@@ -59,7 +65,7 @@
 
    ;; Backend
    (:file "backend" :depends-on ("utility-macros"))
-   (:c-source-file "terminal_glue")
+   (:uffi-c-source-file "terminal_glue")
    (:file "terminal-translations" :depends-on ("packages"))
    (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
    (:file "smart-terminal" :depends-on ("terminal" "matcher"))
@@ -70,7 +76,7 @@
    (:file "line" :depends-on ("utility-macros"))
    (:file "buffer" :depends-on ("utility-macros"))
    (:file "command-keys" :depends-on ("packages"))
-   (:c-source-file "signals")
+   (:uffi-c-source-file "signals")
    (:file "editor" :depends-on ("backend" "rewindable" "signals"
 				"line" "buffer" "command-keys"))
    (:file "main" :depends-on ("editor"))
