@@ -73,12 +73,12 @@
 	  with max
 	  for cand in matches
 	  do (let ((diff (mismatch string cand)))
-	       (unless (< diff (length string))
-		 (setf common (if common 
-				  (subseq common 0 (mismatch common cand))
-				  cand)
-		       max (max max (length cand))
-		       all (cons cand all))))
+	       (when (and diff (> diff (length string)))
+		   (setf common (if common 
+				    (subseq common 0 (mismatch common cand))
+				    cand)
+			 max (max max (length cand))
+			 all (cons cand all))))
 	  finally (if (or (null common)
 			  (<= (length common) (length string)))
 		      (return (values all max))
@@ -121,7 +121,7 @@ to the appropriate home directory."
 	    do (let* ((full (funcall namefun entry))
 		      (diff (mismatch string full)))
 		 (dbg "~& completed: ~A, diff: ~A~%" full diff)
-		 (unless (< diff (length string))
+		 (unless (and diff (< diff (length string)))
 		   (dbg "~& common ~A mismatch ~A~&" common 
 			(mismatch common full))
 		   (setf common (if common

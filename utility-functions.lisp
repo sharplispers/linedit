@@ -50,7 +50,9 @@
 (defun start-debug (pathname &rest open-args)
   "Start linedit debugging output to pathname, with additional
 open-args passed to `open'."
-  (setf *debug* (apply #'open pathname :direction :output open-args)))
+  (setf *debug* (apply #'open pathname 
+		       :direction :output 
+		       (append open-args '(:if-exists :append)))))
 
 (defun end-debug ()
   "End linedit debugging output."
