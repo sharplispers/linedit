@@ -59,7 +59,8 @@
    (:file "generic-backend" :depends-on ("utility-macros"))
    (:c-source-file "dumb_terminal")
    (:file "dumb-terminal-translations")
-   (:file "dumb-terminal" :depends-on ("generic-backend"
+   (:file "terminfo")
+   (:file "dumb-terminal" :depends-on ("generic-backend" "terminfo"
 				       "dumb-terminal-translations"
 				       "dumb_terminal"))
    ;; Editor
