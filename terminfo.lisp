@@ -24,11 +24,15 @@
 (defparameter *terminfo* (make-hash-table))
 (defparameter *infocmp* "/usr/bin/infocmp")
 
-(let ((esc (princ-to-string #\Esc)))
-  ;; FIXME; This most certainly doesn't unscape everything that we may
-  ;; encounter.
-  (defun unescape-terminfo (string)
-    (regex-replace-all "\\\\E" string esc)))
+(defun unescape-terminfo (string)
+  (do ((chars nil)
+       (i 0 (1+ i)))
+      ((= i (length string)) (map 'string 'identity (nreverse chars)))
+    (if (and (eql #\\ (char string i))
+	     (eql #\E (char string (1+ i))))
+	(and (push #\Esc chars)
+	     (incf i))
+	(push (char string i) chars))))
 
 (defmacro match-and-define (form &rest matches)
   (with-unique-names (txt len)
@@ -45,7 +49,7 @@
 			       (write-string it)))))))
 		   matches)))))
 
-;; FIXME: Save terminfo data to fasls
+;; FIXME: Save parsed data to a FASL.
 (let ((infos
        ;; Would be nice to manage without regexps here...
        (split
