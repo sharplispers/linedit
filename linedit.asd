@@ -56,25 +56,22 @@
    (:file "utility-functions" :depends-on ("packages"))
 
    ;; Backend
-   (:file "generic-backend" :depends-on ("utility-macros"))
-   (:c-source-file "dumb_terminal")
-   (:file "dumb-terminal-translations")
+   (:file "backend" :depends-on ("utility-macros"))
+   (:c-source-file "terminal_glue")
+   (:file "terminal-translations")
+   (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
+   (:file "dumb-terminal" :depends-on ("terminal"))
    (:file "terminfo")
-   (:file "dumb-terminal" :depends-on ("generic-backend" "terminfo"
-				       "dumb-terminal-translations"
-				       "dumb_terminal"))
+   (:file "smart-terminal" :depends-on ("terminal" "terminfo"))
+   (:file "dumb-terminal" :depends-on ("terminal"))
+
    ;; Editor
    (:file "pool" :depends-on ("utility-macros"))
    (:file "line" :depends-on ("utility-macros"))
    (:file "buffer" :depends-on ("utility-macros"))
    (:file "command-keys" :depends-on ("packages"))
    (:c-source-file "signals")
-   (:file "editor" :depends-on ("generic-backend"
-				"pool"
-				"signals"
-				"line"
-				"buffer"
-				"command-keys"))
+   (:file "editor" :depends-on ("backend" "pool" "signals" "line" "buffer" "command-keys"))
    (:file "main" :depends-on ("editor"))
    (:file "complete" :depends-on ("utility-macros"))
    (:file "command-functions" :depends-on ("editor"))

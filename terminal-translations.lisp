@@ -21,10 +21,10 @@
 
 (in-package :linedit)
 
-(defvar *dumb-terminal-translations* (make-hash-table :test #'equalp))
+(defvar *terminal-translations* (make-hash-table :test #'equalp))
 
 (defmacro deftrans (name chord)
-  `(setf (gethash ,chord *dumb-terminal-translations*) ,name))
+  `(setf (gethash ,chord *terminal-translations*) ,name))
 
 (deftrans "C-Space" 0)
 (deftrans "C-A" 1)

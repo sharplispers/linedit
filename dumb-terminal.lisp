@@ -24,43 +24,10 @@
 ;;; The simplest Linedit backend, that copes only with single lines
 ;;; of limited length.
 
-(defclass dumb-terminal (backend)
-  ((translations :initform *dumb-terminal-translations*)))
-
-(uffi:def-function ("linedit_dumb_terminal_columns" c-dumb-terminal-columns)
-    ((default :int))
-  :returning :int)
-
-(defmethod backend-columns ((backend dumb-terminal))
-  (c-dumb-terminal-columns *default-columns*))
+(defclass dumb-terminal (terminal) ())
 
 (defmethod line-length-limit ((backend dumb-terminal))
   (backend-columns backend))
-
-(uffi:def-function ("linedit_dumb_terminal_lines" c-dumb-terminal-lines)
-    ((default :int))
-  :returning :int)
-
-(defmethod backend-lines ((backend dumb-terminal))
-  (c-dumb-terminal-lines *default-lines*))
-
-(uffi:def-function ("linedit_dumb_terminal_init" c-dumb-terminal-init)
-    ()
-  :returning :int)
-
-(defmethod backend-init ((backend dumb-terminal))
-  (assert (not (backend-ready-p backend)))
-  (assert (zerop (c-dumb-terminal-init)))
-  (setf (backend-ready-p backend) t))
-
-(uffi:def-function ("linedit_dumb_terminal_close" c-dumb-terminal-close)
-    ()
-  :returning :int)
-
-(defmethod backend-close ((backend dumb-terminal))
-  (assert (backend-ready-p backend))
-  (assert (zerop (c-dumb-terminal-close)))
-  (setf (backend-ready-p backend) nil))
 
 (defmethod display ((backend dumb-terminal) prompt line)
   (let ((string (line-string line)))
@@ -76,80 +43,3 @@
       (write-prompt)
       (write-string (subseq string 0 (line-point line)))
       (force-output))))
-
-(defmethod read-chord ((backend dumb-terminal))
-  (assert (backend-ready-p backend))
-  (flet ((read-open-chord ()
-	   (do ((chars nil)
-		(c #1=(read-char) #1#))
-	       ((member c '(#\- #\~ #\$)) (nconc (nreverse chars) (list c)))
-	     (push c chars))))
-    (let ((chord
-	   (acase (read-char)
-		  (#\Esc
-		   (cons it (acase (read-char)
-				   (#\[ (cons
-					 it
-					 (let ((char (read-char)))
-					   (if (digit-char-p char)
-					       (cons char
-						     (read-open-chord))
-					       (list char)))))
-				   (t (list it)))))
-		  (t (if (graphic-char-p it)
-			 it
-			 (char-code it))))))
-      (gethash chord
-	       (backend-translations backend)
-	       (if (characterp chord)
-		   chord
-		   (list 'untranslated chord))))))
-
-(defmethod beep ((b dumb-terminal))
-  (declare (ignore b))
-  (and (write-char #\Bell *error-output*)
-       (force-output *error-output*)))
-
-(defmethod page ((backend dumb-terminal))
-  (write-string "--more--")
-  (force-output)
-  (let ((q (read-chord backend)))
-    (write-char #\Return)
-    (not (equal #\q q))))
-
-(defmethod print-in-columns ((backend dumb-terminal) list &key width)
-  (terpri)
-  (let ((cols (truncate (backend-columns backend) width)))
-    (do ((item #1=(pop list) #1#)
-	 (i 0 (1+ i))
-	 (line 0))
-	((null item))
-      (when (= i cols)
-	(terpri)
-	(setf i 0)
-	(when (= (1+ (incf line)) (backend-lines backend))
-	  (setf line 0)
-	  (unless (page backend)
-	    (return-from print-in-columns nil))))
-      (write-string item)
-      (loop repeat (- width (length item))
-	    do (write-char #\Space))))
-  (terpri))
-
-(defmethod print-in-lines ((backend dumb-terminal) string)
-  (terpri)
-  (do ((i 0 (1+ i))
-       (lines 0))
-      ((= i (length string)))
-    (let ((c (schar string i)))
-      (when (= lines (backend-lines backend))
-	(setf lines 0)
-	(unless (page backend)
-	  (return-from print-in-lines nil)))
-      (when (eql #\newline c)
-	(incf lines))
-      (write-char c)))
-  (terpri))
-
-(defmethod newline ((backend dumb-terminal))
-  (terpri))

@@ -51,3 +51,12 @@
 	   (find-symbol (symbol-name ,var) ,package)
 	 (when (eq ,state :internal)
 	   ,@forms)))))
+
+(defmacro invariant (condition)
+  (with-unique-names (value)
+    `(let ((,value ,condition))
+       (unless ,value
+	 (error "BUG: You seem to have found a bug in Linedit. Please report this incident ~
+                 along with directions to reproduce and the following message to ~
+                 linedit-devel@common-lisp.net: `Invariant ~S violated.'"
+		',condition)))))

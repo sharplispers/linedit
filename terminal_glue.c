@@ -26,12 +26,18 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 
-#include "linedit.h"
+const int linedit_OK              = 0;
+const int linedit_NOT_ATTY        = 1;
+const int linedit_MEMORY_ERROR    = 2;
+const int linedit_TCGETATTR_ERROR = 3;
+const int linedit_TCSETATTR_ERROR = 4;
+const int linedit_ATTR_ERROR      = 5;
+const int linedit_NO_ATTR_ERROR   = 6;
 
 static struct termios * attr = NULL;
 
 int
-linedit_dumb_terminal_init (void)
+linedit_terminal_init (void)
 {
   struct termios tmp;  
 
@@ -65,7 +71,7 @@ linedit_dumb_terminal_init (void)
 }
   
 int
-linedit_dumb_terminal_close (void)
+linedit_terminal_close (void)
 {
   /* Restore saved terminal state from attr. */
   if (! attr)
@@ -85,7 +91,7 @@ linedit_dumb_terminal_close (void)
 }
 
 int
-linedit_dumb_terminal_columns (int def)
+linedit_terminal_columns (int def)
 {
   char * col;
 
@@ -104,7 +110,7 @@ linedit_dumb_terminal_columns (int def)
 }
 
 int
-linedit_dumb_terminal_lines (int def)
+linedit_terminal_lines (int def)
 {
   char * lin;
 
