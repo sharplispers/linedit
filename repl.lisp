@@ -21,9 +21,6 @@
 
 (in-package :linedit)
 
-(unless (find-package :sb-aclrepl)
-  (make-package :sb-aclrepl))
-
 (defun install-repl (&key use-wrapper)
   #+sbcl
   (when (linedit:tty-p)
