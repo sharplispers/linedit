@@ -19,10 +19,6 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-;;; The system-definition itself needs UFFI. Blech.
-(unless (find-package :uffi)  
-  (error "UFFI must be loaded before Linedit."))
-
 (declaim (optimize (debug 3) (safety 3)))
 
 (in-package :asdf)
@@ -35,8 +31,10 @@
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c c-source-file))
-  (dolist (f (input-files o c))
-    (uffi:load-foreign-library f)))
+  (let ((loader (or (find-symbol "LOAD-FOREIGN-LIBRARY" :uffi)
+		    (error "Could not find UFFI:LOAD-FOREIGN-LIBRARY."))))
+    (dolist (f (input-files o c))
+      (funcall loader f))))
 
 (defmethod perform ((o compile-op) (c c-source-file))
   (unless (zerop (run-shell-command "~A ~A -shared -fPIC -o ~A"
