@@ -1,0 +1,152 @@
+-*- Text -*-
+
+LINEDIT
+
+ LINEDIT is a readline-style library written in Common Lisp that
+ provides customizable line-editing for Common Lisp programs.
+
+ Current version is SBCL specific, but should be trivial to port to
+ CMUCL and nearly trivial to port to any UFFI compatible
+ implementation.
+
+ LINEDIT has been tested on finnish Debian testing/unstable Linux. If
+ the keybindings do not work as expected, please report. The current
+ input handling is only empirically correct -- which is a gentile way
+ of saying "works on my box, dunno about yours".
+
+
+
+ USAGE
+
+ > (asdf:oos 'asdf:load-op 'linedit)
+
+ > (linedit:linedit)
+
+
+
+ API
+
+  function LINEDIT &key prompt complete insert word-delimiters history
+
+      prompt -- simple-string
+      complete -- function designator
+      insert -- boolean
+      word-delimiters -- simple-string
+      history -- (or boolean pathspec)
+
+    Reads a single line of input with line-editing. 
+
+    PROMPT is printed at the beginning of the input line, and defaults
+    to "> ".
+
+    The function designated by COMPLETE is called with a simple-string
+    to be completed and should return a list of simple-strings that
+    match the initial string. By default this functions completes on
+    symbols and packages in the current lisp image.
+
+    INSERT controls the start-up mode. NIL corresponds to overwrite
+    and T (default) to insert mode.
+
+    WORD-DELIMITERS controls the LINEDIT's behaviour in various subtle
+    ways and defaults to "()[]{}',` ".
+
+    If HISTORY is NIL, any existing history is ignored. If HISTORY is
+    T history is retained in memory between invocations (default). If
+    HISTORY is a valid pathspec the designated file is used to save
+    the history (and initial history is read from the file).
+
+
+  macro DEFKEY id &optional action
+
+      id -- simple-string
+      action -- symbol
+
+    Binds key-chord ID to function identified by ACTION.
+
+    Key-chord IDs are listed under keybindings.
+
+  
+
+
+ KEYBINDINGS
+
+   Listed but undocumented keys are available for binding by DEFKEY,
+   but aren't guaranteed to remain so in future releases.
+
+   Backspace	delete-char-backwards
+   C-Backspace  delete-word-backwards
+   Delete	delete-char-forwards
+   End		end-of-line
+   Home		start-of-line
+   Insert	toggle-insert
+   Return	finish-input
+   Tab		autocomplete
+   Down-arrow   history-next
+   Left-arrow   char-left
+   Right-arrow  char-right
+   Up-arrow	history-previous
+   Page-down
+   Page-up
+
+   C--		undo
+   C-A		start-of-line
+   C-B		char-left
+   C-C		
+   C-D		delete-char-forwards
+   C-E		end-of-line
+   C-F		char-right
+   C-G		
+   C-J
+   C-K		kill-line
+   C-L		redraw-line
+   C-N
+   C-O
+   C-P
+   C-Q
+   C-R
+   C-S
+   C-Space	set-mark
+   C-T
+   C-U
+   C-V
+   C-W		cut-region
+   C-X
+   C-Y		yank
+   C-Z
+
+   M-0
+   M-1
+   M-2
+   M-3
+   M-4
+   M-5
+   M-6
+   M-7
+   M-8
+   M-9
+   M-A
+   M-B		backwards-word
+   M-C
+   M-D
+   M-E
+   M-F		forwards-word
+   M-G
+   M-H		help
+   M-I
+   M-J
+   M-K
+   M-L
+   M-M
+   M-N
+   M-O
+   M-P
+   M-Q
+   M-R
+   M-S
+   M-T
+   M-U
+   M-V
+   M-W		copy-region
+   M-X
+   M-Y		yank-cycle
+   M-Z
