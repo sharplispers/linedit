@@ -21,7 +21,7 @@
 	(set-dispatch-macro-character #\# #\. (constantly (values)) table)
 	(do ((str (apply #'linedit :prompt prompt1 args)
 		  (concat str
-			  (string #\Newline)
+			  (string #\newline)
 			  (apply #'linedit :prompt prompt2 args))))
 	    ((let ((form (handler-case (let ((*readtable* table))
 					 (read-from-string str))
