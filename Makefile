@@ -71,8 +71,8 @@ release:
 	rm -rf $(NAME)
 	ln -s $(NAME).tar.gz.asc $(LINK).asc
 	ln -s $(NAME).tar.gz $(LINK)
-	mv $(NAME).tar.gz $(NAME).tar.gz.asc $(LINK) $(LINK).asc $(FTP)
-	$(RSYNC_FTP) && $(FTP_PERMS)
+	mv $(NAME).tar.gz $(NAME).tar.gz.asc $(LINK) $(LINK).asc $(HTML)/files/
+#	$(RSYNC_FTP) && $(FTP_PERMS)
 
 public_html:
 	$(RSYNC_HTML) && $(HTML_PERMS)
