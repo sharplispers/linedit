@@ -1,5 +1,4 @@
 LICENSE
 *.lisp
 *.c
-*.h
 *.asd
