@@ -27,19 +27,19 @@
 
 (defvar *cc* "/usr/bin/cc")
 
-(defmethod output-files ((o t) (c c-source-file))
+(defmethod output-files ((o compile-op) (c c-source-file))
   (list (make-pathname :name (component-name c)
 		       :type "o"
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c c-source-file))
-  (sb-alien:load-foreign (output-files t c)))
+  (sb-alien:load-foreign (output-files (make-instance 'compile-op) c)))
 
 (defmethod perform ((o compile-op) (c c-source-file))
   (unless (zerop (run-shell-command "~A ~A -c -o ~A"
 				    *cc*
 				    (namestring (component-pathname c))
-				    (namestring (car (output-files t c)))))
+				    (namestring (car (output-files o c)))))
     (error 'operation-error :component c :operation o)))
 
 ;;;
