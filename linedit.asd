@@ -33,7 +33,7 @@
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c c-source-file))
-  (sb-alien:load-foreign (output-files (make-instance 'compile-op) c)))
+  (sb-alien:load-foreign (input-files o c)))
 
 (defmethod perform ((o compile-op) (c c-source-file))
   (unless (zerop (run-shell-command "~A ~A -c -o ~A"
