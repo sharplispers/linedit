@@ -99,6 +99,7 @@
 (defchord "Left-arrow"  '(#\Esc #\[ #\D))
 (defchord "Insert"      '(#\Esc #\[ #\2 #\~))
 (defchord "Delete"      '(#\Esc #\[ #\3 #\~))
+(defchord "C-Delete"    '(#\Esc #\[ #\3 #\^))
 (defchord "Page-up"     '(#\Esc #\[ #\5 #\~))
 (defchord "Page-down"   '(#\Esc #\[ #\6 #\~))
 (defchord "Home"        '(#\Esc #\[ #\7 #\~))

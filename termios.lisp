@@ -98,7 +98,7 @@
 (defun tty-p ()
   (plusp (linedit-has-tty)))
 
-(defvar *chord-terminators* (list #\~ #\$))
+(defvar *chord-terminators* (list #\~ #\$ #\^))
 
 ;; FIXME: Using READ-CHAR is definitely unportable. Urgh.
 

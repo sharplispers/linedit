@@ -124,6 +124,7 @@
 (defkey "Left-arrow" 'char-left)
 (defkey "Insert" 'toggle-insert)
 (defkey "Delete" 'delete-char-forwards)
+(defkey "C-Delete")
 (defkey "Page-up")
 (defkey "Page-down")
 (defkey "Home" 'start-of-line)
