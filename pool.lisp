@@ -19,12 +19,37 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :linedit
-  (:use :cl)
-  (:export
-   #:linedit
-   #:formedit
-   #:*default-columns*
-   #:*default-lines*
-   #+sbcl #:install-repl
-   ))
+(in-package :linedit)
+
+;;; A pool of states. states can be added to the pool, last one
+;;; retrieved, or pool rewound.
+;;;
+;;; Used to implement undo.
+
+(defclass pool ()
+  ((store :reader %pool-store
+	  :initform (make-array 12 :fill-pointer 0 :adjustable t))
+   ;; Index is the number of rewinds we've done.
+   (index :accessor %pool-index
+	  :initform 0)))
+
+(defun %pool-size (pool)
+  (fill-pointer (%pool-store pool)))
+
+(defun last-insert (pool)
+  (let ((size (%pool-size pool)))
+    (unless (zerop size)
+      (aref (%pool-store pool) (1- size)))))
+
+(defun insert (object pool)
+  (let ((i (%pool-index pool))
+	(store (%pool-store pool)))
+    (unless (zerop i)
+      ;; Reverse the tail of pool, since we've
+      ;; gotten to the middle by rewinding.
+      (setf (subseq store i) (nreverse (subseq store i))))
+    (vector-push-extend object store)))
+
+(defun rewind (pool)
+  (setf (%pool-index pool) (mod (1+ (%pool-index pool)) (pool-size pool)))
+  (aref (%pool-store pool) (- (%pool-size pool) (%pool-index pool) 1)))

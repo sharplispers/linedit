@@ -19,13 +19,13 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#-sbcl (error "Current version requires SBCL.")
+;;; The system-definition itself needs UFFI. Blech.
+(unless (find-package :uffi)  
+  (error "UFFI must be loaded before Linedit."))
+
+(declaim (optimize (debug 3) (safety 3)))
 
 (in-package :asdf)
-
-;;;
-;;; Methods for compiling .c's to .so's
-;;;
 
 (defvar *gcc* "/usr/bin/gcc")
 
@@ -36,38 +36,43 @@
 
 (defmethod perform ((o load-op) (c c-source-file))
   (dolist (f (input-files o c))
-    (sb-alien:load-1-foreign f)))
+    (uffi:load-foreign-library f)))
 
 (defmethod perform ((o compile-op) (c c-source-file))
-  (unless (zerop (run-shell-command "~A ~A -shared -o ~A"
+  (unless (zerop (run-shell-command "~A ~A -shared -fPIC -o ~A"
 				    *gcc*
 				    (namestring (component-pathname c))
 				    (namestring (car (output-files o c)))))
     (error 'operation-error :component c :operation o)))
 
-;;;
-;;; The actual system
-;;;
-
 (defsystem :linedit
-    :components (
-		 (:c-source-file "termios-glue")
-		 (:file "packages")
-		 (:file "util" :depends-on ("packages"))
-		 (:file "termios" :depends-on ("util" "termios-glue"))
-		 (:file "line" :depends-on ("util"))
-		 (:file "buffer" :depends-on ("line"))
-		 (:file "history" :depends-on ("buffer"))
-		 (:file "kill" :depends-on ("buffer"))
-		 (:file "undo" :depends-on ("line"))
-		 (:file "chords" :depends-on ("packages"))
-		 (:file "functions" :depends-on ("packages" "termios"))
-		 (:file "complete" :depends-on ("functions"))
-		 (:file "commands"
-			:depends-on ("kill" "functions" "complete" "chords"))
-		 (:file "linedit"
-			:depends-on
-			("functions" "commands" "kill" "undo"
-                         "history" "termios"))
-		 (:file "repl" :depends-on ("linedit"))			
-		 ))
+    :depends-on (:uffi)
+    :components
+  (;; Common
+   (:file "packages")
+   (:file "utility-macros" :depends-on ("packages"))
+   (:file "utility-functions" :depends-on ("packages"))
+
+   ;; Backend
+   (:file "generic-backend" :depends-on ("utility-macros"))
+   (:c-source-file "dumb_terminal")
+   (:file "dumb-terminal-translations")
+   (:file "dumb-terminal" :depends-on ("generic-backend"
+				       "dumb-terminal-translations"
+				       "dumb_terminal"))
+   ;; Editor
+   (:file "pool" :depends-on ("utility-macros"))
+   (:file "line" :depends-on ("utility-macros"))
+   (:file "buffer" :depends-on ("utility-macros"))
+   (:file "command-keys" :depends-on ("packages"))
+   (:c-source-file "signals")
+   (:file "editor" :depends-on ("generic-backend"
+				"pool"
+				"signals"
+				"line"
+				"buffer"
+				"command-keys"))
+   (:file "main" :depends-on ("editor"))
+   (:file "complete" :depends-on ("utility-macros"))
+   (:file "command-functions" :depends-on ("editor"))
+   #+sbcl (:file "sbcl-repl" :depends-on ("main"))))

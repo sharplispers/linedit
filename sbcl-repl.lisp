@@ -19,12 +19,36 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :linedit
-  (:use :cl)
-  (:export
-   #:linedit
-   #:formedit
-   #:*default-columns*
-   #:*default-lines*
-   #+sbcl #:install-repl
-   ))
+(in-package :linedit)
+
+#-sbcl
+(error "Attempt to load an SBCL specific file in anothr implementation.")
+
+(defun install-repl (&key wrap-current)
+  (let ((prompt-fun sb-int:*repl-prompt-fun*)
+	(read-form-fun sb-int:*repl-read-form-fun*))
+    (declare (type function prompt-fun read-form-fun))
+    (flet ((repl-reader (in out)
+	     (declare (type stream out)
+		      (ignore in))
+	     (fresh-line out)
+	     (let ((prompt (with-output-to-string (s)
+			     (funcall prompt-fun s))))
+	       (handler-case
+		   (linedit:formedit
+		    :prompt1 prompt
+		    :prompt2 (make-string (length prompt) 
+					  :initial-element #\Space))
+		 (end-of-file () (sb-ext:quit))))))
+      (setf sb-int:*repl-prompt-fun* (constantly ""))
+      (setf sb-int:*repl-read-form-fun*	      
+	    (if wrap-current
+		(lambda (in out)
+		  (declare (type stream out in))
+		  (with-input-from-string (in (repl-reader in out))
+		    (terpri)
+		    (funcall read-form-fun in out)))
+		(lambda (in out)
+		  (declare (type stream out in))
+		  (read-from-string (repl-reader in out)))))))
+  t)

@@ -21,28 +21,21 @@
 
 (in-package :linedit)
 
-(defstruct linedit
-  (string "" :type simple-string)
-  (index 0 :type fixnum))
+(defclass line ()
+  ((string :accessor line-string :initform "" :initarg :string)
+   (point :reader line-point :initform 0 :initarg :point)))
 
-(declaim (type linedit *linedit*))
-(defvar *linedit*)
+(defun (setf line-point) (point line)
+  (when (<= 0 point (length (line-string line)))
+    (setf (slot-value line 'point) point)))
 
-(defun point ()
-  (linedit-index *linedit*))
+(defmethod equal? ((a line) (b null))
+  nil)
 
-(defun (setf point) (index)
-  (setf (linedit-index *linedit*) index))
+(defmethod equal? ((a line) (b line))
+  (equal (line-string a) (line-string b)))
 
-(declaim (ftype (function () simple-string) line))
-(defun line ()
-  (linedit-string *linedit*))
-
-(defun (setf line) (string)
-  (setf (linedit-string *linedit*) string))
-
-(defun subline (start &optional end)
-  (subseq (line) start end))
-
-(defun line-char (index)
-  (schar (line) index))
+(defmethod copy ((line line))
+  (make-instance 'line
+		 :string (copy-seq (line-string line))
+		 :point (line-point line)))

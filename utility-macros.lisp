@@ -21,44 +21,33 @@
 
 (in-package :linedit)
 
-(defvar *history* nil)
+(defmacro aif (condition consequent &optional alternative)
+  `(let ((it ,condition))
+     (if it
+	 ,consequent
+	 ,alternative)))
 
-(defun history-previous ()
-  (aif (buffer-previous (line) *history*)
-       (redraw-line it)
-       (beep)))
+(defmacro acase (form &rest cases)
+  `(let ((it ,form))
+     (case it
+       ,@cases)))
 
-(defun history-next ()
-  (aif (buffer-next (line) *history*)
-       (redraw-line it)
-       (beep)))
+(defmacro with-unique-names ((&rest bindings) &body body)
+  `(let ,(mapcar #'(lambda (binding)
+                     (destructuring-bind (var prefix)
+			 (if (consp binding) binding (list binding binding))
+                       `(,var (gensym ,(string prefix)))))
+                 bindings)
+     ,@body))
 
-(defun history-add (string)
-  (buffer-push string *history*))  
+(defmacro awhen (condition &body body)
+  `(aif ,condition
+	(progn ,@body)))
 
-(defun make-history ()
-  (make-buffer))
-
-(let ((history-file-ident ";; -*- Lisp -*- LINEDIT HISTORY FILE"))
-
-  (defun read-history (pathspec)
-    (with-standard-io-syntax 
-      (let ((*read-eval* nil)
-	    (history nil))
-	(with-open-file (f pathspec)
-	  (assert (equal history-file-ident (read-line f)))
-	  (setf history (read f))
-	  (assert (null (read f nil nil))))
-	history)))
-    
-  (defun save-history (pathspec)  
-    (ensure-directories-exist pathspec)
-    (with-standard-io-syntax
-      (with-open-file (f pathspec
-			 :direction :output
-			 :if-exists :supersede
-			 :if-does-not-exist :create)
-	(write-line history-file-ident f)
-	(prin1 *history* f)
-	(terpri f)))))
-  
+(defmacro do-internal-symbols ((var package) &body forms)
+  (with-unique-names (state)
+    `(do-symbols (,var ,package)
+       (multiple-value-bind (,var ,state)
+	   (find-symbol (symbol-name ,var) ,package)
+	 (when (eq ,state :internal)
+	   ,@forms)))))

@@ -21,37 +21,30 @@
 
 (in-package :linedit)
 
-(defstruct undo
-  (pool (make-array 48 :fill-pointer 0 :adjustable t :element-type 'linedit))
-  (index 0))
+(defparameter *default-columns* 80)
+(defparameter *default-lines* 24)
 
-(declaim (type undo *undo*))
-(defvar *undo*)
+(defclass backend ()
+  ((ready-p :accessor backend-ready-p :initform nil)
+   (translations :reader backend-translations)))
 
-(defun save-copy-for-undo ()
-  (let* ((pool (undo-pool *undo*))
-	 (size (fill-pointer pool))
-	 (i (undo-index *undo*)))
-    (declare (type (array linedit *) pool))
-    (unless (zerop i)
-      ;; We've gotten here by undoing, so we need to
-      ;; reorder the states we've visited.
-      (do ((i0 i (1+ i0))
-	   (i1 (1- size) (1- i1)))
-	  ((>= i0 i1))
-	(psetf (aref pool i0) (aref pool i1)
-	       (aref pool i1) (aref pool i0))))
-    (unless (and (plusp size)
-		 (equal (line) (linedit-string (aref pool (1- size)))))
-      (vector-push-extend (copy-linedit *linedit*) pool))))
+(defmacro with-backend (backend &body forms)
+  (with-unique-names (an-error)
+    `(let ((,an-error nil))
+       (unwind-protect
+	    (handler-case (progn
+			    (backend-init ,backend)
+			    ,@forms)
+	      (error (e)
+		(setf ,an-error e)))
+	 (backend-close ,backend)
+	 (awhen ,an-error
+	   (error it))))))
 
-(defun undo ()
-  (let* ((pool (undo-pool *undo*))
-	 (size (fill-pointer pool))
-	 (index (undo-index *undo*)))
-    (declare (type (array linedit *) pool))
-    (setf (undo-index *undo*) (mod (1+ index) size)
-	   *linedit* (copy-linedit (aref pool (- size (undo-index *undo*) 1))))
-    (redraw-line)
-    (throw 'undo t)))
+(defmacro without-backend (backend &body forms)
+  `(unwind-protect
+	(progn
+	  (backend-close ,backend)
+	  ,@forms)
+     (backend-init ,backend)))
 

@@ -21,10 +21,18 @@
 
 (in-package :linedit)
 
-(defstruct (buffer (:conc-name "%BUFFER-"))
-  prev
-  next
-  list)
+;;; BUFFER offers a simple browsable from of storage. It is used to
+;;; implement both the kill-ring and history.
+
+(defclass buffer ()
+  ((prev :accessor %buffer-prev :initform nil)
+   (next :accessor %buffer-next :initform nil)
+   (list :accessor %buffer-list :initform nil)))
+
+(defun buffer-push (string buffer)
+  (push string (%buffer-list buffer))
+  (setf (%buffer-next buffer) nil 
+	(%buffer-prev buffer) (%buffer-list buffer)))
 
 (defun buffer-previous (string buffer)
   (when (%buffer-prev buffer)
@@ -39,11 +47,6 @@
   (when (%buffer-next buffer)
     (push string (%buffer-prev buffer))
     (pop (%buffer-next buffer))))
-
-(defun buffer-push (string buffer)
-  (push string (%buffer-list buffer))
-  (setf (%buffer-next buffer) nil 
-	(%buffer-prev buffer) (%buffer-list buffer)))
 
 (defun buffer-cycle (buffer)
   (flet ((wrap-buffer ()
