@@ -22,7 +22,7 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;; DAMAGE.
-#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.7 2003-11-24 22:05:47 nsiivola Exp $")
+#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.8 2004-03-01 13:27:42 nsiivola Exp $")
 
 (in-package "COMMON-LISP-USER")
 
@@ -622,8 +622,10 @@
 	   #+darwin (format nil "~X" (char-code (char name 0)))
 	   #-darwin (string (char name 0))))
     (let ((name (concatenate 'string (stringify-first-char name) "/" name)))
-      (dolist (path (list* #+(or CMU SBCL) "home:.terminfo/"
+      (dolist (path (list* #+CMU "home:.terminfo/"
 			   #+Allegro "~/.terminfo/"
+			   #-(or CMU Allegro) 
+			   (merge-pathnames ".terminfo/" (user-homedir-pathname))
 			   *terminfo-directories*))
 	(with-open-file (stream (merge-pathnames name path)
 				:direction :input
