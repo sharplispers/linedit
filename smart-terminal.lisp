@@ -22,10 +22,11 @@
 (in-package :linedit)
 
 (defclass smart-terminal (terminal)
-  ((point-row :initform 1 :accessor point-row)
-   (point-col :initform 0 :accessor point-col)
-   (active-string :initform "" :accessor active-string)
-   (start :initform 0 :accessor get-start)))
+  ((old-row :initform 1 :accessor old-row)
+   (old-col :initform 0 :accessor old-col)
+   (old-point :initform 0 :accessor old-point)
+   (old-string :initform "" :accessor old-string)
+   (old-markup :initform 0 :accessor old-markup)))
 
 (defun set-column-address (n current)
   (if nil
@@ -54,9 +55,11 @@
 (defun find-col (n columns)
   (rem n columns))
 
-(defun move-up-in-column (&key col up clear-to-eos current-col)
+(defun move-in-column (&key col vertical clear-to-eos current-col)
   (set-column-address col current-col)
-  (loop repeat up do (ti:tputs ti:cursor-up))
+  (if (plusp vertical)
+      (loop repeat vertical do (ti:tputs ti:cursor-up))
+      (loop repeat (abs vertical) do (ti:tputs ti:cursor-down)))
   (when clear-to-eos
     (ti:tputs ti:clr-eos)))
 
@@ -74,40 +77,47 @@
 (defmethod display ((backend smart-terminal) &key prompt line point markup)
   (let* ((*terminal-io* *standard-output*)
 	 (columns (backend-columns backend))
-	 (old-markup-start (get-start backend))
-	 (old-col (point-col backend)))
-    (multiple-value-bind (marked-line markup-start)
+	 (old-markup (old-markup backend))
+	 (old-col (old-col backend))
+	 (old-row (old-row backend))
+	 (old-point (old-point backend))
+	 (old (old-string backend))
+	 (new (concat prompt line))
+	 (end (length new))
+	 (rows (find-row end columns)))
+    (multiple-value-bind (marked-line markup)
 	(if markup
 	    (dwim-mark-parens line point 
 			      :pre-mark ti:enter-bold-mode
 			      :post-mark ti:exit-attribute-mode)
 	    (values line point))
-	(let* ((new (concat prompt marked-line))
-	       (old (active-string backend))
-	       (end (+ (length prompt) (length line))) ;; based on unmarked
-	       (rows (find-row end columns))
-	       (point* (+ point (length prompt)))
-	       (point-row (find-row point* columns))
-	       (point-col (find-col point* columns))
-	       (start (min* point* markup-start old-markup-start 
-			    (mismatch new old) end))
+	(let* ((full (concat prompt marked-line))
+	       (point (+ point (length prompt)))
+	       (point-row (find-row point columns))
+	       (point-col (find-col point columns))
+	       (diff (mismatch new old))
+	       (start (min* old-point point markup old-markup diff end))
 	       (start-row (find-row start columns))
 	       (start-col (find-col start columns)))
-	  (dbg-values point-row point-col start-row start-col (point-row backend))
-	  (move-up-in-column
+	  (dbg "---~%")
+	  (dbg-values (subseq new start))
+	  (dbg-values rows point point-row point-col start start-row start-col
+		      old-point old-row old-col end diff)
+	  (move-in-column
 	   :col start-col 
-	   :up (- (point-row backend) start-row)
+	   :vertical (- old-row start-row)
 	   :clear-to-eos t
 	   :current-col old-col)
-	  (write-string (subseq new start))
+	  (write-string (subseq full start))
 	  (fix-wraparound start end columns)
-	  (move-up-in-column 
+	  (move-in-column 
 	   :col point-col
-	   :up (- rows point-row)
+	   :vertical (- rows point-row)
 	   :current-col (find-col end columns))
 	  ;; Save state
-	  (setf (point-row backend) point-row
-		(point-col backend) point-col
-		(active-string backend) (concat prompt line)
-		(get-start backend) markup-start)
-	  (force-output *terminal-io*)))))
+	  (setf (old-row backend) point-row
+		(old-col backend) point-col
+		(old-string backend) new
+		(old-markup backend) markup
+		(old-point backend) point)))
+    (force-output *terminal-io*)))

@@ -67,10 +67,11 @@
   `(or ,symbol (setf ,symbol ,expr)))
 
 (defmacro dbg-values (&rest places)
-  `(progn 
-     (format *debug* ,(apply #'concat (mapcar (lambda (x)
-						(format nil "~A = ~~A, " x))
-					      places))
+  `(when *debug*
+     (format *debug* ,(apply #'concatenate 'string 
+			     (mapcar (lambda (x)
+				       (format nil "~A = ~~A, " x))
+				     places))
 	     ,@places)
      (terpri *debug*)
      (force-output *debug*)))
