@@ -13,4 +13,4 @@ all:
 	ln -s $(NAME).tar.gz $(LINK)
 	mv $(NAME).tar.gz $(NAME).tar.gz.asc $(LINK) $(LINK).asc $(FTP)
 	chown -R $(USER):linedit $(FTP)
-	rsync -lgcrtC $(FTP)/. $(CLO_UI)@common-lisp.net:/project/linedit/ftp
+	rsync -vlgcrC $(FTP)/. $(CLO_UI)@common-lisp.net:/project/linedit/ftp/
