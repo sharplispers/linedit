@@ -70,11 +70,11 @@
       (let* ((point (+ (length prompt) point))
 	     (point-row (find-row point))
 	     (point-col (find-col point)))
-      (loop repeat (- rows point-row)
-	    do (ti:tputs ti:cursor-up))
-      (ti:tputs ti:column-address point-col)
-      ;; Save state
-      (setf (point-row backend) point-row
-	    (active-string backend) new))))
+	(loop repeat (- rows point-row)
+	      do (ti:tputs ti:cursor-up))
+	(ti:tputs ti:column-address point-col)
+	;; Save state
+	(setf (point-row backend) point-row
+	      (active-string backend) (concat prompt line)))))
     (force-output *terminal-io*)))
 

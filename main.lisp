@@ -42,6 +42,8 @@ a string. Assumes standard readtable."
     (catch 'form-done
       (let ((eof-marker (gensym "EOF"))
 	    (table (copy-readtable)))
+	;; FIXME: It would be nice to provide an interace of some sort that
+	;; the user could use to alter the crucial reader macros in custom readtables.
 	(set-macro-character #\; #'semicolon-reader nil table)
 	(set-dispatch-macro-character #\# #\. (constantly (values)) table)
 	(do ((str (apply #'linedit :prompt prompt1 args)
@@ -49,7 +51,9 @@ a string. Assumes standard readtable."
 			  (string #\newline)
 			  (apply #'linedit :prompt prompt2 args))))
 	    ((let ((form (handler-case (let ((*readtable* table))
-					 ;; Eugh. Argh.
+					 ;; KLUDGE: This is needed to handle input that starts
+					 ;; with an empty line. (At least in the presense of
+					 ;; ACLREPL).
 					 (if (find-if-not 'whitespacep str)
 					     (read-from-string str)
 					     (error 'end-of-file)))

@@ -21,6 +21,10 @@
 
 (in-package :linedit)
 
+;; FIXME: This is not the Right Way to do paren matching.
+;; * use stack, not counting
+;; * don't count #\( #\) &co
+
 (defun after-close-p (string index)
   (and (array-in-bounds-p string (1- index))
        (find (schar string (1- index)) ")]}")))
