@@ -35,8 +35,8 @@ CLNET_HOME=/project/$(PROJECT)
 CLNET_FTP=$(CLNET_HOME)/ftp/
 CLNET_HTML=$(CLNET_HOME)/public_html/
 
-FTP_PERMS=ssh $(CLNET) "chgrp -R $(PROJECT) $(CLNET_FTP) && chmod -R 664 $(CLNET_FTP)/*"
-HTML_PERMS=ssh $(CLNET) "chgrp -R $(PROJECT) $(CLNET_HTML) && chmod -R 664 $(CLNET_HTML)/*"
+FTP_PERMS=ssh $(CLNET) "chgrp -R $(PROJECT) $(CLNET_FTP) && chmod -R ug+rw,o-w $(CLNET_FTP)/*"
+HTML_PERMS=ssh $(CLNET) "chgrp -R $(PROJECT) $(CLNET_HTML) && chmod -R ug+rw,o-w $(CLNET_HTML)*"
 RSYNC=rsync -vlcrC 
 RSYNC_FTP=$(RSYNC) $(FTP)/. $(CLNET):$(CLNET_FTP)
 RSYNC_HTML=$(RSYNC) $(HTML)/. $(CLNET):$(CLNET_HTML)

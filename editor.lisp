@@ -81,7 +81,12 @@
   (line-string (editor-line editor)))
 
 (defun (setf editor-string) (string editor)
-  (setf (line-string (editor-line editor)) string))
+  (let ((limit (line-length-limit (editor-backend editor))))
+    (if (and limit (>= (length string) limit))
+	(progn
+	  (beep editor)
+	  (throw 'linedit-loop t))
+	(setf (line-string (editor-line editor)) string))))
 
 (defun (setf editor-line) (line editor)
   (setf (slot-value editor 'line) line))

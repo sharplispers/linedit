@@ -6,7 +6,7 @@
     (with-backend backend      
       (catch 'linedit-done
 	(loop
-	 (catch 'undo
+	 (catch 'linedit-loop
 	   (next-chord editor))))
       (get-finished-string editor))))
 

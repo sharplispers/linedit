@@ -97,7 +97,7 @@
 (defun undo (chord editor)
   (declare (ignore chord))
   (setf (editor-line editor) (copy (rewind (undo-pool editor))))
-  (throw 'undo t))
+  (throw 'linedit-loop t))
 
 ;;; HISTORY
 

@@ -23,9 +23,6 @@
 
 ;;; The simplest Linedit backend, that copes only with single lines
 ;;; of limited length.
-;;;
-;;; The editor->backend protocal should be extended so that the
-;;; backend can refuse input, though. (To prevent long lines).
 
 (defclass dumb-terminal (backend)
   ((translations :initform *dumb-terminal-translations*)))
@@ -36,6 +33,9 @@
 
 (defmethod backend-columns ((backend dumb-terminal))
   (c-dumb-terminal-columns *default-columns*))
+
+(defmethod line-length-limit ((backend dumb-terminal))
+  (backend-columns backend))
 
 (uffi:def-function ("linedit_dumb_terminal_lines" c-dumb-terminal-lines)
     ((default :int))
