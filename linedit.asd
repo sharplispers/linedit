@@ -19,6 +19,8 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#-sbcl (error "Current version requires SBCL.")
+
 (in-package :asdf)
 
 ;;;
@@ -48,13 +50,11 @@
 ;;;
 
 (defsystem :linedit
-    :depends-on (:cl-ppcre)
     :components (
 		 (:c-source-file "termios-glue")
 		 (:file "packages")
 		 (:file "util" :depends-on ("packages"))
 		 (:file "termios" :depends-on ("util" "termios-glue"))
-		 (:file "terminfo" :depends-on ("util"))
 		 (:file "line" :depends-on ("util"))
 		 (:file "buffer" :depends-on ("line"))
 		 (:file "history" :depends-on ("buffer"))
@@ -62,7 +62,9 @@
 		 (:file "undo" :depends-on ("line"))
 		 (:file "chords" :depends-on ("packages"))
 		 (:file "functions" :depends-on ("packages" "termios"))
-		 (:file "commands" :depends-on ("kill" "functions" "chords"))
+		 (:file "complete" :depends-on ("functions"))
+		 (:file "commands"
+			:depends-on ("kill" "functions" "complete" "chords"))
 		 (:file "linedit"
 			:depends-on
 			("functions" "commands" "kill" "undo"

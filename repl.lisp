@@ -24,14 +24,16 @@
 (defun install-repl (&key use-wrapper)
   #+sbcl
   (when (linedit:tty-p)
-    (let ((prompt-fun sb-int:*repl-prompt-fun*))
-      (declare (type function prompt-fun))
+    (let ((prompt-fun sb-int:*repl-prompt-fun*)
+	  (read-form-fun sb-int:*repl-read-form-fun*))
+      (declare (type function prompt-fun read-form-fun))
       (setf sb-int:*repl-prompt-fun* (constantly ""))
       (flet ((repl-reader (in out)
 	       (declare (type stream out)
 			(ignore in))
 	       (fresh-line out)
-	       (let ((prompt (with-output-to-string (s) (funcall prompt-fun s))))
+	       (let ((prompt (with-output-to-string (s)
+			       (funcall prompt-fun s))))
 		 (handler-case
 		     (linedit:formedit
 		      :prompt prompt
@@ -40,14 +42,17 @@
 		   (end-of-file () (sb-ext:quit))))))
 	(setf sb-int:*repl-read-form-fun*	      
 	      (if use-wrapper
-		  (let ((wrapper sb-int:*repl-read-form-fun*))
-		    (declare (function wrapper))
-		    (lambda (in out)
-		      (declare (type stream out in))
-		      (with-input-from-string (in (repl-reader in out))
-			(terpri)
-			(funcall wrapper in out))))
 		  (lambda (in out)
 		    (declare (type stream out in))
-		    (read-from-string (repl-reader in out))))))))
+		    (with-input-from-string (in (repl-reader in out))
+		      (terpri)
+		      (funcall read-form-fun in out)))
+		  (lambda (in out)
+		    (declare (type stream out in))
+		    (read-from-string (repl-reader in out))))))
+      (push (lambda ()
+	      (warn "Deinstalling linedit-repl before dumping core.")
+	      (setf sb-int:*repl-read-form-fun* read-form-fun
+		    sb-int:*repl-prompt-fun* prompt-fun))
+	    sb-int:*before-save-initializations*)))
   #-sbcl (error "install-repl is SBCL only"))

@@ -87,7 +87,7 @@
 		 &allow-other-keys)
   (declare (optimize (debug 3)))
   (catch 'form
-    (let ((eof-marker (cons nil nil))
+    (let ((eof-marker (list nil))
 	  (saved-read-eval *read-eval*)
 	  (table (copy-readtable *readtable*)))
       (set-dispatch-macro-character #\# #\. (constantly (values)) table)
@@ -95,10 +95,9 @@
 		(concat str " "
 			(apply #'linedit :prompt prompt2 keyword-args))))
 	  ((let ((form
-		  (handler-case
-		      (let ((*readtable* table))
-			(read-from-string str))
+		  (handler-case (let ((*readtable* table))
+				  (read-from-string str))
 		    (end-of-file () eof-marker))))
 	     (unless (eq eof-marker form)
 	       (throw 'form str))))
-	   (terpri)))))
+	(terpri)))))

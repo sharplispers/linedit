@@ -34,7 +34,7 @@
    ))
    
 (defpackage #:linedit-term
-  (:use #:cl #:sb-ext #:sb-alien #:linedit-util #:cl-ppcre)
+  (:use #:cl #:sb-ext #:sb-alien #:linedit-util)
   (:export
    #:with-termios
    #:signal-stop
