@@ -271,9 +271,14 @@
       (let* ((length (length string))
 	     (first-colon (position #\: string))
 	     (last-colon (position #\: string :from-end t))
-	     (state (and first-colon (if (< first-colon last-colon)
+	     (state (and first-colon
+			 (if (< first-colon last-colon)
 					 :internal
 					 :external)))
+	     (package (and first-colon
+			   (find-package (if (plusp first-colon)
+					     (string-upcase (subseq string 0 first-colon))
+					     :keyword))))
 	     (hash (make-hash-table :test #'equal))
 	     (common nil)
 	     (max 0))
@@ -289,12 +294,9 @@
 			 max (max max (length name))
 			 (gethash name hash) name))))
 	  (when (plusp length)
-	    (if state
+	    (if package
 		(let* ((i (1+ last-colon))
-		       (n (- length i))
-		       (package (find-package (if (plusp first-colon)
-						  (string-upcase (subseq string 0 first-colon))
-						  :keyword))))
+		       (n (- length i)))
 		  (labels ((select-symbol-aux (symbol)
 			     (let ((name (stringify symbol)))
 			       (when (and (>= (length name) n) (equal (subseq string i) (subseq name 0 n)))
