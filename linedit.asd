@@ -31,8 +31,7 @@
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c c-source-file))
-  (let ((loader (or (find-symbol "LOAD-FOREIGN-LIBRARY" :uffi)
-		    (error "Could not find UFFI:LOAD-FOREIGN-LIBRARY."))))
+  (let ((loader (intern "LOAD-FOREIGN-LIBRARY" :uffi)))
     (dolist (f (input-files o c))
       (funcall loader f))))
 
