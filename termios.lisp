@@ -19,7 +19,7 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(in-package :linedit-termios)
+(in-package #:linedit-term)
 
 (defparameter *default-columns* 80)
 (defparameter *default-lines* 24)
@@ -89,8 +89,8 @@
 	  (restore-termios)
 	  (let ((*termios* nil))
 	    ,@forms))
-     (linedit-termios::save-termios)
-     (linedit-termios::keyboard-mode)))
+     (save-termios)
+     (keyboard-mode)))
 
 (defun signal-stop ()
   (without-termios (linedit-stop)))

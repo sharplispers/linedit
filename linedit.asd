@@ -48,11 +48,13 @@
 ;;;
 
 (defsystem :linedit
+    :depends-on (:cl-ppcre)
     :components (
 		 (:c-source-file "termios-glue")
 		 (:file "packages")
 		 (:file "util" :depends-on ("packages"))
 		 (:file "termios" :depends-on ("util" "termios-glue"))
+		 (:file "terminfo" :depends-on ("util"))
 		 (:file "line" :depends-on ("util"))
 		 (:file "buffer" :depends-on ("line"))
 		 (:file "history" :depends-on ("buffer"))

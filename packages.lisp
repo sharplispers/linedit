@@ -19,8 +19,8 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :linedit-util
-  (:use :cl)
+(defpackage #:linedit-util
+  (:use #:cl)
   (:export
    #:acase
    #:aif
@@ -33,8 +33,8 @@
    #:*debug*
    ))
    
-(defpackage :linedit-termios
-  (:use :cl :sb-alien :linedit-util)
+(defpackage #:linedit-term
+  (:use #:cl #:sb-ext #:sb-alien #:linedit-util #:cl-ppcre)
   (:export
    #:with-termios
    #:signal-stop
@@ -45,7 +45,7 @@
    ))
 
 (defpackage :linedit
-  (:use :cl :linedit-util :linedit-termios)
+  (:use :cl :linedit-util :linedit-term)
   (:export
    #:linedit
    #:formedit
