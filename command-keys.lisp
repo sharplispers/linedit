@@ -38,7 +38,7 @@
 (defcommand "C-K" 'kill-to-eol)
 (defcommand "C-L")
 (defcommand "C-N" 'history-next)
-(defcommand "C-O")
+(defcommand "C-O" 'close-all-sexp)
 (defcommand "C-P" 'history-previous)
 (defcommand "C-Q")
 (defcommand "C-R")
@@ -88,6 +88,10 @@
 (defcommand "M-8")
 (defcommand "M-9")
 (defcommand "M-0")
+
+(defcommand "C-M-b" 'backward-sexp)
+(defcommand "C-M-f" 'forward-sexp)
+(defcommand "C-M-k" 'kill-sexp)
 
 (defcommand "C-Space" 'set-mark)
 (defcommand "C-Backspace" 'delete-word-backwards)

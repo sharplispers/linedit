@@ -200,6 +200,26 @@
   ;; accessors.  Why? Was I not thinking, or am I not thinking now?
   (setf (editor-mark editor) (get-point editor)))
 
+;;; SEXP MOTION
+
+;; FIXME: all of these only operate on the current editing line.
+;; Also, obviously, all save close-all-sexp are unimplemented.
+
+(defun forward-sexp (chord editor)
+  (declare (ignore chord editor)) nil)
+
+(defun backward-sexp (chord editor)
+  (declare (ignore chord editor)) nil)
+
+(defun kill-sexp (chord editor)
+  (declare (ignore chord editor)) nil)
+
+(defun close-all-sexp (chord editor)
+  (move-to-eol chord editor)
+  (do ((string (get-string editor) (get-string editor)))
+      ((not (find-open-paren string (length string))))
+    (add-char #\) editor)))
+
 ;;; SIGNALS
 
 (defun interrupt-lisp (chord editor)

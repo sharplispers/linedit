@@ -96,6 +96,10 @@
 (deftrans "M-8" (#\Esc #\8) 184)
 (deftrans "M-9" (#\Esc #\9) 185)
 
+(deftrans "C-M-f" (#\Esc #\Ack))
+(deftrans "C-M-b" (#\Esc #\Stx))
+(deftrans "C-M-k" (#\Esc #\Vt)) 
+
 (deftrans "Up-arrow"    (#\Esc #\[ #\A))
 (deftrans "Down-arrow"  (#\Esc #\[ #\B))
 (deftrans "Right-arrow" (#\Esc #\[ #\C))

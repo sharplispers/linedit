@@ -83,12 +83,31 @@
 			  (<= (length common) (length string)))
 		      (return (values all max))
 		      (return (values (list common) (length common))))))))))))))))
-	  
+
+;; We can't easily do zsh-style tab-completion of ~us into ~user, but
+;; at least we can expand ~ and ~user.  The other bug here at the
+;; moment is that ~nonexistant will complete to the same as ~.
+(defun tilde-expand-string (string)
+  "Returns the supplied string, with a prefix of ~ or ~user expanded
+to the appropriate home directory."
+  (if (and (> (length string) 0)
+	   (eql (schar string 0) #\~))
+      (flet ((chop (s) (subseq s 0 (1- (length s)))))
+	(let* ((slash-idx (loop for i below (length string)
+				when (eql (schar string i) #\/) return i))
+	       (suffix (and slash-idx (subseq string slash-idx)))
+	       (uname (subseq string 1 slash-idx))
+	       (homedir (or (cdr (assoc :home (osicat:user-info uname)))
+			    (chop (namestring (user-homedir-pathname))))))
+	(concatenate 'string homedir (or suffix ""))))
+      string))
+
 (defun directory-complete (string)
   (declare (simple-string string))
   (let* ((common nil)
 	 (all nil)
 	 (max 0)
+	 (string (tilde-expand-string string))
 	 (dir (pathname-directory-pathname string))
 	 (namefun (if (relative-pathname-p string)
 		      #'namestring
