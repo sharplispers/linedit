@@ -183,6 +183,9 @@
 (defmethod print-in-columns ((editor editor) list &key width)
   (print-in-columns (editor-backend editor) list :width width))
 
+(defmethod print-in-lines ((editor editor) string)
+  (print-in-lines (editor-backend editor) string))
+
 (defun in-quoted-string-p (editor)
   (let ((i (editor-word-start editor)))
     (and (plusp i) (eql #\" (schar (editor-string editor) (1- i))))))

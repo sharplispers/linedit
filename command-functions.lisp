@@ -225,3 +225,25 @@
 	    (editor-replace-word editor (car completions))
 	    (print-in-columns editor completions :width (+ max-len 2)))
 	(beep editor))))
+
+(defun apropos-word (chord editor)
+  (declare (ignore chord))
+  (let* ((word (editor-word editor))
+	 (apropi (apropos-list word)))
+    (if (null apropi)
+	(beep editor)
+	(let* ((longest 0)
+	       (strings (mapcar (lambda (symbol)
+				  (declare (symbol symbol))
+				  (let ((str (prin1-to-string symbol)))
+				    (setf longest (max longest (length str)))
+				    (string-downcase str)))
+				apropi)))
+	  (print-in-columns editor strings :width (+ longest 2))))))
+
+(defun describe-word (chord editor)
+  (declare (ignore chord))
+  (print-in-lines editor
+		  (with-output-to-string (s)
+		    (describe (find-symbol (string-upcase
+					    (editor-word editor))) s))))

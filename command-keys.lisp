@@ -57,10 +57,10 @@
 (defcommand "C--" 'undo)
 (defcommand "Backspace" 'delete-char-backwards)
 
-(defcommand "M-A")
+(defcommand "M-A" 'apropos-word)
 (defcommand "M-B" 'move-word-backwards)
 (defcommand "M-C")
-(defcommand "M-D")
+(defcommand "M-D" 'describe-word)
 (defcommand "M-E")
 (defcommand "M-F" 'move-word-forwards)
 (defcommand "M-G")
