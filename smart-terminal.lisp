@@ -89,10 +89,11 @@
 	       (point* (+ point (length prompt)))
 	       (point-row (find-row point* columns))
 	       (point-col (find-col point* columns))
-	       (start (min* markup-start old-markup-start 
+	       (start (min* point* markup-start old-markup-start 
 			    (mismatch new old) end))
 	       (start-row (find-row start columns))
 	       (start-col (find-col start columns)))
+	  (dbg-values point-row point-col start-row start-col (point-row backend))
 	  (move-up-in-column
 	   :col start-col 
 	   :up (- (point-row backend) start-row)
