@@ -49,6 +49,12 @@ linedit_stop (void)
   kill (0, SIGTSTP);
 }
 
+void
+linedit_interrupt (void)
+{
+  kill (0, SIGINT);
+}
+
 int
 linedit_save_termios (void)
 {

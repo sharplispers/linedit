@@ -54,6 +54,7 @@
 (define-alien-routine "linedit_keyboard_mode" int)
 (define-alien-routine "linedit_has_tty" int)
 (define-alien-routine "linedit_stop" void)
+(define-alien-routine "linedit_interrupt" void)
 
 (defun save-termios ()
   (termios-call #'linedit-save-termios 'save-termios))
@@ -94,6 +95,9 @@
 
 (defun signal-stop ()
   (without-termios (linedit-stop)))
+
+(defun signal-interrupt ()
+  (without-termios (linedit-interrupt)))
 
 (defun tty-p ()
   (plusp (linedit-has-tty)))

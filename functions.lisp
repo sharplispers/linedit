@@ -80,6 +80,11 @@
     (decf (point))
     (refresh)))
 
+(defun interrupt-lisp ()
+  (unwind-protect
+       (signal-interrupt)
+    (redraw-line)))
+
 (defun stop-lisp ()
   (unwind-protect
        (signal-stop)

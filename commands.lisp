@@ -54,7 +54,7 @@
 (defkey "C-Space" 'set-mark)
 (defkey "C-A" 'start-of-line)
 (defkey "C-B" 'char-left)
-(defkey "C-C")
+(defkey "C-C" 'interrupt-lisp)
 (defkey "C-D" 'delete-char-forwards-or-eof)
 (defkey "C-E" 'end-of-line)
 (defkey "C-F" 'char-right)

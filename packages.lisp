@@ -38,6 +38,7 @@
   (:export
    #:with-termios
    #:signal-stop
+   #:signal-interrupt
    #:read-chord
    #:*columns*
    #:*lines*
