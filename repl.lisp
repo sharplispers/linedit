@@ -27,34 +27,30 @@
 (defun install-repl (&key use-wrapper)
   #+sbcl
   (when (linedit:tty-p)
-    (let ((prompt-fun sb-int:*repl-prompt-fun*)
-	  (read-fun sb-int:*repl-read-form-fun*))
-      (declare (type function read-fun prompt-fun))
-      (setf sb-int:*repl-prompt-fun* (constantly "")
-	    sb-int:*repl-read-form-fun*
-	    (lambda (in out)
-	      (declare (type stream out)
-		       (ignore in))
-	      (fresh-line out)
-	      (let ((prompt (with-output-to-string (s) 
-			      (funcall prompt-fun s))))
-		(handler-case 
-		    (linedit:formedit
-		     :eval (not use-wrapper)
-		     :prompt prompt
-		     :prompt2 (make-string (length prompt) 
-					   :initial-element #\Space))
-		  (end-of-file () (sb-ext:quit))))))
-      ;; for SB-ACLREPL
-      (when use-wrapper
-	(let ((linedit-repl sb-int:*repl-read-form-fun*))
-	  (declare (function linedit-repl))
-	  (setf sb-int:*repl-read-form-fun*
-		(lambda (in out)
-		  (declare (type stream out in))
-		  (with-input-from-string (in (prin1-to-string (funcall linedit-repl in out)))
-		    (terpri)
-		    (let ((sb-aclrepl::*eof-fun* (lambda ()
-						   (throw 'sb-aclrepl::repl-catcher nil))))
-		    (funcall read-fun in out)))))))))
+    (let ((prompt-fun sb-int:*repl-prompt-fun*))
+      (declare (type function prompt-fun))
+      (setf sb-int:*repl-prompt-fun* (constantly ""))
+      (flet ((repl-reader (in out)
+	       (declare (type stream out)
+			(ignore in))
+	       (fresh-line out)
+	       (let ((prompt (with-output-to-string (s) (funcall prompt-fun s))))
+		 (handler-case
+		     (linedit:formedit
+		      :prompt prompt
+		      :prompt2 (make-string (length prompt) 
+					    :initial-element #\Space))
+		   (end-of-file () (sb-ext:quit))))))
+	(setf sb-int:*repl-read-form-fun*	      
+	      (if use-wrapper
+		  (let ((wrapper sb-int:*repl-read-form-fun*))
+		    (declare (function wrapper))
+		    (lambda (in out)
+		      (declare (type stream out in))
+		      (with-input-from-string (in (repl-reader in out))
+			(terpri)
+			(funcall wrapper in out))))
+		  (lambda (in out)
+		    (declare (type stream out in))
+		    (read-from-string (repl-reader in out))))))))
   #-sbcl (error "install-repl is SBCL only"))

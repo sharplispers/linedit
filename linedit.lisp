@@ -83,7 +83,7 @@
     (line)))
 
 (defun formedit (&rest keyword-args
-		 &key eval (prompt "> ") (prompt2 "| ")
+		 &key (prompt "> ") (prompt2 "| ")
 		 &allow-other-keys)
   (declare (optimize (debug 3)))
   (catch 'form
@@ -96,11 +96,9 @@
 			(apply #'linedit :prompt prompt2 keyword-args))))
 	  ((let ((form
 		  (handler-case
-		      (let ((*readtable* (if eval table *readtable*)))
+		      (let ((*readtable* table))
 			(read-from-string str))
 		    (end-of-file () eof-marker))))
 	     (unless (eq eof-marker form)
-	       (throw 'form (multiple-value-bind (form n)
-				(read-from-string str)
-			      (values form (subseq str n)))))))
-	(terpri)))))
+	       (throw 'form str))))
+	   (terpri)))))
