@@ -1,4 +1,4 @@
-VERSION=0.7
+VERSION=0.7.1
 NAME=linedit-$(VERSION)
 LINK=linedit-latest.tar.gz
 FTP=../ftp

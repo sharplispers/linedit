@@ -50,4 +50,6 @@
    #:defkey
    #:*insert*
    #:*word-delimiters*
+   #:lisp-complete
+   #:directory-complete
    ))

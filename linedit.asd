@@ -58,7 +58,7 @@
 		 (:file "kill" :depends-on ("buffer"))
 		 (:file "undo" :depends-on ("line"))
 		 (:file "chords" :depends-on ("packages"))
-		 (:file "functions" :depends-on ("packages"))
+		 (:file "functions" :depends-on ("packages" "termios"))
 		 (:file "commands" :depends-on ("kill" "functions" "chords"))
 		 (:file "linedit"
 			:depends-on
