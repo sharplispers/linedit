@@ -49,7 +49,7 @@
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
     (setf (get-string editor) (concat (subseq string 0 point) 
-				      (subseq string (1+ point))))))
+				      (subseq string (min (1+ point) (length string)))))))
 
 (defun delete-char-forwards-or-eof (chord editor)
   (if (equal "" (get-string editor))
