@@ -76,3 +76,17 @@ release:
 
 public_html:
 	$(RSYNC_HTML) && $(HTML_PERMS)
+
+TI_VERSION=1.0
+TI=terminfo_$(TI_VERSION)
+TI_LINK=terminfo_latest.tar.gz
+
+terminfo:
+	mkdir -p $(TI)
+	cp terminfo.lisp terminfo.asd $(TI)/
+	tar -czvf $(TI).tar.gz $(TI)
+	gpg -b -a $(TI).tar.gz
+	rm -rf $(TI)
+	ln -s $(TI).tar.gz.asc $(TI_LINK).asc
+	ln -s $(TI).tar.gz $(TI_LINK)
+	mv $(TI).tar.gz $(TI).tar.gz.asc $(TI_LINK) $(TI_LINK).asc $(HTML)/files/
