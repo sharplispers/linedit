@@ -68,6 +68,24 @@
   (declare (ignore chord editor))
   (throw 'linedit-done t))
 
+;;; CASE CHANGES
+
+(flet ((frob-case (frob editor)
+	 (with-editor-point-and-string ((point string) editor)
+	   (let ((end (editor-word-end editor)))
+	     (setf (get-string editor) (concat (subseq string 0 point)
+					       (funcall frob (subseq string point end))
+					       (subseq string end))
+		   (get-point editor) end)))))
+
+  (defun upcase-word (chord editor)
+    (declare (ignore chord))
+    (funcall #'frob-case #'string-upcase editor))
+
+  (defun downcase-word (chord editor)
+    (declare (ignore chord))
+    (funcall #'frob-case #'string-downcase editor)))
+
 ;;; MOVEMENT
 
 (defun move-to-bol (chord editor)
