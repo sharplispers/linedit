@@ -28,15 +28,62 @@
 (defun underlying-directory-p (pathname)
   (case (file-kind pathname)
     (:directory t)
-    (:symbolic-link (file-kind (merge-pathnames (read-link pathname) pathname)))))
+    (:symbolic-link 
+     (file-kind (merge-pathnames (read-link pathname) pathname)))))
 
 (defun relative-pathname-p (pathname)
   (let ((dir (pathname-directory pathname)))
     (or (null dir)
 	(eq :relative (car dir)))))
 
-;; This version of directory-complete isn't nice to symlinks, and
-;; should be replaced by something backed by foreign glue.
+(defun logical-pathname-p (pathname)
+  (typep (pathname pathname) 'logical-pathname))
+
+(defun logical-pathname-complete (string)
+  (values (list string) (length string)))
+
+#+nil
+(defun logical-pathname-complete (string)
+  (let* ((host (pathname-host string))
+	 (rest (subseq string (1+ (mismatch host string))))
+	 (rules (remove-if-not (lambda (rule)
+				 (mismatch rest (first rule)))))
+	 (physicals (mapcar (lambda (rule)
+			      (namestring 
+			       (translate-pathname string 
+						   (first rule)
+						   (second rule))))
+			    rules))
+	 (matches (apply #'append (mapcar #'directory-complete physicals)))
+	 (logicals (mapcar (lambda (physical)
+			     (let ((rule (find-if (lambda (rule)
+						    (misma
+
+  (flet ((maybe-translate-logical-pathname (string)
+	   (handler-case
+	       (translate-logical-pathname string)
+	     (error () 
+	       (return-from logical-pathname-complete (values nil 0))))))
+    (directory-complete 
+     (namestring 
+      (maybe-translate-logical-pathname string)))))
+    ;; FIXME: refactor chared code with directory complete
+    (loop with all
+	  with common
+	  with max
+	  for cand in matches
+	  do (let ((diff (mismatch string cand)))
+	       (unless (< diff (length string))
+		 (setf common (if common 
+				  (subseq common 0 (mismatch common cand))
+				  cand)
+		       max (max max (length cand))
+		       all (cons cand all))))
+	  finally (if (or (null common)
+			  (<= (length common) (length string)))
+		      (return (values all max))
+		      (return (values (list common) (length common))))))))))))))))
+	  
 (defun directory-complete (string)
   (declare (simple-string string))
   (let* ((common nil)
@@ -56,7 +103,8 @@
 		      (diff (mismatch string full)))
 		 (dbg "~& completed: ~A, diff: ~A~%" full diff)
 		 (unless (< diff (length string))
-		   (dbg "~& common ~A mismatch ~A~&" common (mismatch common full))
+		   (dbg "~& common ~A mismatch ~A~&" common 
+			(mismatch common full))
 		   (setf common (if common
 				    (subseq common 0 (mismatch common full))
 				    full)
@@ -72,7 +120,9 @@
   (declare (simple-string string))
   (when (plusp (length string))
     (if (in-quoted-string-p editor)
-	(directory-complete string)
+	(if (logical-pathname-p string)
+	    (logical-pathname-complete string)
+	    (directory-complete string))
 	(let* ((length (length string))
 	       (first-colon (position #\: string))
 	       (last-colon (position #\: string :from-end t))

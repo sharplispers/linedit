@@ -28,4 +28,6 @@
    #:*default-lines*
    #+sbcl #:install-repl
    #+sbcl #:uninstall-repl
+   #:start-debug
+   #:end-debug
    ))

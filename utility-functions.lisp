@@ -46,9 +46,12 @@
        (word-delimiter-p (char string index))))
 
 (defun start-debug (pathname &rest open-args)
+  "Start linedit debugging output to pathname, with additional
+open-args passed to `open'."
   (setf *debug* (apply #'open pathname :direction :output open-args)))
 
 (defun end-debug ()
+  "End linedit debugging output."
   (close *debug*)
   (setf *debug* nil))
 
@@ -64,9 +67,13 @@
 (defun meta-escape (string)
   (declare (simple-string string))
   (let (stack)
-    (loop for i from 1 upto (length string)
+    (loop with last
+	  for i from 1 upto (length string)
 	  for char across string
-	  when (eql #\\ char)
+	  ;; KLUDGE: Deal with character literals. Not quite sure this is
+	  ;; the right and robust way to do it, though.
+	  when (and (eql #\\ char) (not (eql #\# last)))
 	  do (push #\\ stack)
-	  do (push char stack))
+	  do (push char stack)
+	     (setf last char))
     (coerce (nreverse stack) 'simple-string)))
