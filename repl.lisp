@@ -21,11 +21,15 @@
 
 (in-package :linedit)
 
-(defun install-repl ()
+(unless (find-package :sb-aclrepl)
+  (make-package :sb-aclrepl))
+
+(defun install-repl (&key use-wrapper)
   #+sbcl
   (when (linedit:tty-p)
-    (let ((prompt-fun sb-int:*repl-prompt-fun*))
-      (declare (type function prompt-fun))
+    (let ((prompt-fun sb-int:*repl-prompt-fun*)
+	  (read-fun sb-int:*repl-read-form-fun*))
+      (declare (type function read-fun prompt-fun))
       (setf sb-int:*repl-prompt-fun* (constantly "")
 	    sb-int:*repl-read-form-fun*
 	    (lambda (in out)
@@ -36,8 +40,21 @@
 			      (funcall prompt-fun s))))
 		(handler-case 
 		    (linedit:formedit
+		     :eval (not use-wrapper)
 		     :prompt prompt
 		     :prompt2 (make-string (length prompt) 
 					   :initial-element #\Space))
-		  (end-of-file () (sb-ext:quit))))))))
+		  (end-of-file () (sb-ext:quit))))))
+      ;; for SB-ACLREPL
+      (when use-wrapper
+	(let ((linedit-repl sb-int:*repl-read-form-fun*))
+	  (declare (function linedit-repl))
+	  (setf sb-int:*repl-read-form-fun*
+		(lambda (in out)
+		  (declare (type stream out in))
+		  (with-input-from-string (in (prin1-to-string (funcall linedit-repl in out)))
+		    (terpri)
+		    (let ((sb-aclrepl::*eof-fun* (lambda ()
+						   (throw 'sb-aclrepl::repl-catcher nil))))
+		    (funcall read-fun in out)))))))))
   #-sbcl (error "install-repl is SBCL only"))
