@@ -47,3 +47,5 @@
 	  (backend-close ,backend)
 	  ,@forms)
      (backend-init ,backend)))
+
+ (defgeneric display (backend prompt line point))
