@@ -32,6 +32,7 @@
 			       (not (or prompt-fun read-form-fun))))))
 
     (defun uninstall-repl ()
+      "Uninstalls the Linedit REPL, restoring original handlers."
       (enforce-consistent-state)
       (if prompt-fun
 	  (setf sb-int:*repl-prompt-fun* prompt-fun
@@ -42,6 +43,8 @@
       nil)
 
     (defun install-repl (&key wrap-current)
+      "Installs the Linedit at REPL. Original input handlers can be
+preserved with the :WRAP-CURRENT T."
       (enforce-consistent-state)
       (when prompt-fun
 	(warn "INSTALL-REPL failed: Linedit REPL already installed.")

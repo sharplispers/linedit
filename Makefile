@@ -1,7 +1,7 @@
 # Boilerplate project makefile for Common-lisp.net
 # May all your snapshots be orderly. ;)
 #
-# Per-project files needed: version.txt, release.txt
+# Per-project files needed: version.lisp-expr, release.txt
 # Per-developer files needed: username.txt
 #
 # Following directory structure is assumed, relative to
@@ -16,7 +16,7 @@
 PROJECT=linedit
 
 # Release version number
-VERSION=`cat version.txt`
+VERSION=`cat version.lisp-expr`
 # Username
 USERNAME=`cat username.txt`
 # List of files included in release
@@ -77,7 +77,7 @@ release:
 public_html:
 	$(RSYNC_HTML) && $(HTML_PERMS)
 
-TI_VERSION=1.0.1
+TI_VERSION=1.1
 TI=terminfo_$(TI_VERSION)
 TI_LINK=terminfo_latest.tar.gz
 
