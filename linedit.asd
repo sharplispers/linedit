@@ -22,7 +22,7 @@
 (in-package :asdf)
 
 ;;;
-;;; Methods for compiling .c's to .o's
+;;; Methods for compiling .c's to .so's
 ;;;
 
 (defvar *cc* "/usr/bin/cc")
@@ -33,10 +33,11 @@
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c c-source-file))
-  (sb-alien:load-foreign (input-files o c)))
+  (dolist (f (input-files o c))
+    (load-1-foreign f)))
 
 (defmethod perform ((o compile-op) (c c-source-file))
-  (unless (zerop (run-shell-command "~A ~A -c -o ~A"
+  (unless (zerop (run-shell-command "~A ~A -shared -fpic -o ~A"
 				    *cc*
 				    (namestring (component-pathname c))
 				    (namestring (car (output-files o c)))))
