@@ -46,7 +46,8 @@
 	 (namefun (if (relative-pathname-p string)
 		      #'namestring
 		      (lambda (x) (namestring (merge-pathnames x))))))
-    (unless (underlying-directory-p dir)
+    (unless (and (underlying-directory-p dir)
+		 (not (wild-pathname-p dir)))
       (return-from directory-complete (values nil 0)))
     (with-directory-iterator (next dir)
       (loop for entry = (next)
