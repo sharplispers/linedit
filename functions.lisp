@@ -269,7 +269,11 @@
   (if (in-quoted-string-p)
       (directory-complete string)
       (let* ((length (length string))
-	     (colon (position #\: string))
+	     (first-colon (position #\: string))
+	     (last-colon (position #\: string :from-end t))
+	     (state (and first-colon (if (< first-colon last-colon)
+					 :internal
+					 :external)))
 	     (hash (make-hash-table :test #'equal))
 	     (common nil)
 	     (max 0))
@@ -285,19 +289,26 @@
 			 max (max max (length name))
 			 (gethash name hash) name))))
 	  (when (plusp length)
-	    (if colon	    
-		(let* ((i (1+ colon))
-		       (n (- length i)))
-		  (do-external-symbols
-		      (sym (find-package
-			    (if (plusp colon)
-				(string-upcase (subseq string 0 colon))
-				:keyword)))
-		    (let ((name (stringify sym)))
-		      (when (and (>= (length name) n)
-				 (equal (subseq string i) (subseq name 0 n)))
-			(push-name (concatenate
-				    'string string (subseq name n)))))))
+	    (if state
+		(let* ((i (1+ last-colon))
+		       (n (- length i))
+		       (package (find-package (if (plusp first-colon)
+						  (string-upcase (subseq string 0 first-colon))
+						  :keyword))))
+		  (labels ((select-symbol-aux (symbol)
+			     (let ((name (stringify symbol)))
+			       (when (and (>= (length name) n) (equal (subseq string i) (subseq name 0 n)))
+				 (push-name (concat string (subseq name n))))))
+			   (select-symbol (symbol &optional qualifier)
+			     (if qualifier
+				 (multiple-value-bind (s state) (find-symbol (symbol-name symbol) package)
+				   (declare (ignore s))
+				   (when (eq qualifier state)
+				     (select-symbol-aux symbol)))
+				 (select-symbol-aux symbol))))
+		    (ecase state
+		      (:internal (do-symbols (sym package) (select-symbol sym :internal)))
+		      (:external (do-external-symbols (sym package) (select-symbol sym))))))
 		(dolist (package (list-all-packages))
 		  (if (eq *package* package)
 		      (do-symbols (sym)
