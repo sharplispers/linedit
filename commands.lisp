@@ -77,7 +77,7 @@
 (defkey "C-W" 'cut-region)
 (defkey "C-X")
 (defkey "C-Y" 'yank)
-(defkey "C-Z")
+(defkey "C-Z" 'stop-lisp)
 (defkey "C--" 'undo)
 (defkey "Backspace" 'delete-char-backwards)
 

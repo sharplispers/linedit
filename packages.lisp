@@ -37,6 +37,7 @@
   (:use :cl :sb-alien :linedit-util)
   (:export
    #:with-termios
+   #:signal-stop
    #:read-chord
    #:*columns*
    #:*lines*

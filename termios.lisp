@@ -53,6 +53,7 @@
 (define-alien-routine "linedit_restore_termios" int)
 (define-alien-routine "linedit_keyboard_mode" int)
 (define-alien-routine "linedit_has_tty" int)
+(define-alien-routine "linedit_stop" void)
 
 (defun save-termios ()
   (termios-call #'linedit-save-termios 'save-termios))
@@ -81,6 +82,18 @@
 	   (restore-termios))
 	 (when ,termios-error
 	   (error ,termios-error))))))
+
+(defmacro without-termios (&body forms)
+  `(unwind-protect
+	(progn
+	  (restore-termios)
+	  (let ((*termios* nil))
+	    ,@forms))
+     (linedit-termios::save-termios)
+     (linedit-termios::keyboard-mode)))
+
+(defun signal-stop ()
+  (without-termios (linedit-stop)))
 
 (defun tty-p ()
   (plusp (linedit-has-tty)))

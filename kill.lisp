@@ -53,6 +53,7 @@
   (redraw-line))
 
 (defun kill-line-to-bol ()
+  ;; Thanks to Andreas Fuchs
   (kill-ring-push (subline 0 (point)))
   (setf (line) (subline (point)))
   (setf (point) 0)

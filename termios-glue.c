@@ -21,6 +21,7 @@
  *   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <signal.h>
 #include <unistd.h>
 #include <termios.h>
 #include <stdlib.h>
@@ -40,6 +41,12 @@ int
 linedit_has_tty (void)
 {
   return isatty (STDIN_FILENO);
+}
+
+void
+linedit_stop (void)
+{
+  kill (0, SIGTSTP);
 }
 
 int

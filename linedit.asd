@@ -48,6 +48,7 @@
 ;;;
 
 (defsystem :linedit
+    :depends-on (:sb-posix)
     :components (
 		 (:c-source-file "termios-glue")
 		 (:file "packages")

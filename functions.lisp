@@ -80,6 +80,11 @@
     (decf (point))
     (refresh)))
 
+(defun stop-lisp ()
+  (unwind-protect
+       (signal-stop)
+    (redraw-line)))
+
 (defun redraw-line (&optional line)
   (when line
     (setf (line) line
