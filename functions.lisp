@@ -91,10 +91,12 @@
 (defun toggle-insert ()
   (setf *insert* (not *insert*)))
 
-(defun delete-char-forwards ()
-  (when (< (point) (length (line)))
-    (setf (line) (concat (subline 0 (point)) (subline (1+ (point)))))
-    (refresh 1)))
+(defun delete-char-forwards-or-eof ()
+  (if (equal "" (line))
+      (error 'end-of-file :stream *standard-input*)
+      (when (< (point) (length (line)))
+	(setf (line) (concat (subline 0 (point)) (subline (1+ (point)))))
+	(refresh 1))))
 
 (defun word-end ()
   (let ((i (if (and (< (point) (length (line)))

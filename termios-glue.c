@@ -37,6 +37,12 @@ const int linedit_ATTR_ERROR      = 5;
 const int linedit_NO_ATTR_ERROR   = 6;
 
 int
+linedit_has_tty (void)
+{
+  return isatty (STDIN_FILENO);
+}
+
+int
 linedit_save_termios (void)
 {
   if (attr) 

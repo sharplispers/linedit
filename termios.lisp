@@ -52,6 +52,7 @@
 (define-alien-routine "linedit_save_termios" int)
 (define-alien-routine "linedit_restore_termios" int)
 (define-alien-routine "linedit_keyboard_mode" int)
+(define-alien-routine "linedit_has_tty" int)
 
 (defun save-termios ()
   (termios-call #'linedit-save-termios 'save-termios))
@@ -80,6 +81,9 @@
 	   (restore-termios))
 	 (when ,termios-error
 	   (error ,termios-error))))))
+
+(defun tty-p ()
+  (plusp (linedit-has-tty)))
 
 (defvar *chord-terminators* (list #\~ #\$))
 

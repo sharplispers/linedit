@@ -55,7 +55,7 @@
 (defkey "C-A" 'start-of-line)
 (defkey "C-B" 'char-left)
 (defkey "C-C")
-(defkey "C-D" 'delete-char-forwards)
+(defkey "C-D" 'delete-char-forwards-or-eof)
 (defkey "C-E" 'end-of-line)
 (defkey "C-F" 'char-right)
 (defkey "C-G")

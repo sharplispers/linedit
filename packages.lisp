@@ -40,6 +40,7 @@
    #:read-chord
    #:*columns*
    #:*lines*
+   #:tty-p
    ))
 
 (defpackage :linedit
@@ -47,6 +48,7 @@
   (:export
    #:linedit
    #:formedit
+   #:tty-p
    #:defkey
    #:*insert*
    #:*word-delimiters*
