@@ -24,33 +24,54 @@
 #-sbcl
 (error "Attempt to load an SBCL specific file in anothr implementation.")
 
-(defun install-repl (&key wrap-current)
-  (let ((prompt-fun sb-int:*repl-prompt-fun*)
-	(read-form-fun sb-int:*repl-read-form-fun*))
-    (declare (type function prompt-fun read-form-fun))
-    (flet ((repl-reader (in out)
-	     (declare (type stream out)
-		      (ignore in))
-	     (fresh-line out)
-	     (let ((prompt (with-output-to-string (s)
-			     (funcall prompt-fun s))))
-	       (handler-case
-		   (linedit:formedit
-		    :prompt1 prompt
-		    :prompt2 (make-string (length prompt) 
-					  :initial-element #\Space))
-		 (end-of-file () (sb-ext:quit))))))
-      (setf sb-int:*repl-prompt-fun* (constantly ""))
-      (setf sb-int:*repl-read-form-fun*	      
-	    (if wrap-current
-		(lambda (in out)
-		  (declare (type stream out in))
-		  (with-input-from-string (in (repl-reader in out))
-		    ;; FIXME: Youch.
-		    (write-char #\newline)
-		    (write-char #\return)
-		    (funcall read-form-fun in out)))
-		(lambda (in out)
-		  (declare (type stream out in))
-		  (read-from-string (repl-reader in out)))))))
-  t)
+(let (prompt-fun read-form-fun)
+  (declare (type (or null function) prompt-fun read-form-fun))
+
+  (macrolet ((enforce-consistent-state ()
+	       `(invariant (or (and prompt-fun read-form-fun)
+			       (not (or prompt-fun read-form-fun))))))
+
+    (defun uninstall-repl ()
+      (enforce-consistent-state)
+      (if prompt-fun
+	  (setf sb-int:*repl-prompt-fun* prompt-fun
+		sb-int:*repl-read-form-fun* read-form-fun
+		prompt-fun nil
+		read-form-fun nil)
+	  (warn "UNINSTALL-REPL failed: No Linedit REPL present."))
+      nil)
+
+    (defun install-repl (&key wrap-current)
+      (enforce-consistent-state)
+      (when prompt-fun
+	(warn "INSTALL-REPL failed: Linedit REPL already installed.")
+	(return-from install-repl nil))
+      (setf prompt-fun sb-int:*repl-prompt-fun*
+	    read-form-fun sb-int:*repl-read-form-fun*)
+      (flet ((repl-reader (in out)
+	       (declare (type stream out)
+			(ignore in))
+	       (fresh-line out)
+	       (let ((prompt (with-output-to-string (s)
+			       (funcall prompt-fun s))))
+		 (handler-case
+		     (linedit:formedit
+		      :prompt1 prompt
+		      :prompt2 (make-string (length prompt) 
+					    :initial-element #\Space))
+		   (end-of-file () (sb-ext:quit))))))
+	(setf sb-int:*repl-prompt-fun* (constantly ""))
+	(setf sb-int:*repl-read-form-fun*	      
+	      (if wrap-current
+		  (lambda (in out)
+		    (declare (type stream out in))
+		    (with-input-from-string (in (repl-reader in out))
+		      ;; FIXME: Youch.
+		      (write-char #\newline)
+		      (write-char #\return)
+		      (funcall read-form-fun in out)))
+		  (lambda (in out)
+		    (declare (type stream out in))
+		    (read-from-string (repl-reader in out))))))
+      t)))
+	  

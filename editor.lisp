@@ -21,7 +21,11 @@
 
 (in-package :linedit)
 
-(defvar *version* "0.14.4")
+(defvar *version* #.(symbol-name 
+		     (with-open-file (f (merge-pathnames "version.lisp-expr"
+							 *compile-file-truename*))
+		       (read f))))
+
 (defvar *history* nil)
 (defvar *killring* nil)
 

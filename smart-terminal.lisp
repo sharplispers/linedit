@@ -26,9 +26,11 @@
    (active-string :initform "" :accessor active-string)))
 
 (defun smart-terminal-p ()
-  (every (lambda (key)
-	   (ti:capability key)) '(:cursor-up :cursor-down :clr-eos
-				  :column-address :auto-right-margin)))
+  (every 'identity
+	 '(ti:cursor-up ti:cursor-down 
+	   ti:clr-eos ti:column-address 
+	   ti:auto-right-margin ti:enter-am-mode)))
+
 (defmethod backend-init ((backend smart-terminal))
   (call-next-method)
   (ti:tputs ti:enter-am-mode))

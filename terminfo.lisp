@@ -1,8 +1,14 @@
 ;;; -*- Mode: LISP; Syntax: ANSI-Common-Lisp; Package: TERMINFO -*-
 
-;;; $Revision: 1.4 $
 ;;; Copyright © 2001 Paul Foley (mycroft@actrix.gen.nz)
-;;; All rights reserved.  Use and verbatim redistribution permitted.
+;;;
+;;; Permission is hereby granted, free of charge, to any person obtaining
+;;; a copy of this Software to deal in the Software without restriction,
+;;; including without limitation the rights to use, copy, modify, merge,
+;;; publish, distribute, sublicense, and/or sell copies of the Software,
+;;; and to permit persons to whom the Software is furnished to do so,
+;;; provided that the above copyright notice and this permission notice
+;;; are included in all copies or substantial portions of the Software.
 ;;;
 ;;; THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
 ;;; OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -16,26 +22,27 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;; DAMAGE.
-#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.4 2003-10-20 07:49:24 nsiivola Exp $")
+#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.5 2003-11-01 20:35:42 nsiivola Exp $")
 
-(in-package "CL-USER")
+(in-package "COMMON-LISP-USER")
 
-;; DEFPACKAGE would warn here, since we export things outside the
-;; definition.
+;; DEFPACKAGE would warn here, since we export things outside the definition
 (eval-when (:compile-toplevel :load-toplevel)
   (unless (find-package "TERMINFO")
     (make-package "TERMINFO" :nicknames '("TI") :use '("CL"))))
 
 (in-package "TERMINFO")
 
-(export '(*terminfo-directory* *terminfo* capability tparm
-	  tputs set-terminal))
+(export '(*terminfo-directories* *terminfo* capability tparm tputs
+	  set-terminal))
 
-(defvar *terminfo-directory* "/usr/share/terminfo/")
+(defvar *terminfo-directories* '("/usr/share/terminfo/"
+				 "/usr/share/misc/terminfo/"))
 
 (defvar *terminfo* nil)
 
-(defvar *capabilities* (make-hash-table :size 494))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defvar *capabilities* (make-hash-table :size 494)))
 
 (flet ((required-argument ()
 	 (error "A required argument was not supplied.")))
@@ -50,8 +57,13 @@
     (numbers (required-argument) :type (simple-array (signed-byte 16) (*)))
     (strings (required-argument) :type (simple-array t (*)))))
 
-(defun capability (name &optional (terminfo *terminfo*))
+#+CMU
+(declaim (ext:start-block capability %capability))
+
+(defun %capability (name terminfo)
   (let ((whatsit (gethash name *capabilities*)))
+    (when (null whatsit)
+      (error "Terminfo capability ~S doesn't exist." name))
     (if (or (null terminfo) (>= (cdr whatsit)
 				(length (funcall (car whatsit) terminfo))))
 	nil #| default |#
@@ -60,16 +72,45 @@
 	      nil
 	      value)))))
 
+(declaim (inline capability))
+(defun capability (name &optional (terminfo *terminfo*))
+  (%capability name terminfo))
+
+#+CMU
+(declaim (ext:end-block))
+
+(define-compiler-macro capability (&whole form
+				   name &optional (terminfo '*terminfo*))
+  (if (not (keywordp name))
+      form
+      (let ((value (gensym))
+	    (tmp (gensym)))
+	(unless (gethash name *capabilities*)
+	  (warn "Terminfo capability ~S doesn't exist." name))
+	`(let ((,value (load-time-value (cons nil nil)))
+	       (,tmp ,terminfo))
+	   (if (eq (car ,value) ,tmp)
+	       (cdr ,value)
+	       (setf (car ,value) ,tmp
+		     (cdr ,value) (%capability ,name ,tmp)))))))
+
+
 (defmacro defcap (name type index)
   (let ((thing (ecase type
 		 (boolean 'terminfo-booleans)
 		 (integer 'terminfo-numbers)
-		 (string 'terminfo-strings))))
+		 (string 'terminfo-strings)))
+	(symbol (intern (string name) "KEYWORD")))
     `(progn
-       (setf (gethash ,(intern (string name) "KEYWORD") *capabilities*)
-	     (cons #',thing ,index))
-       (define-symbol-macro ,name
-	   (capability ,(intern (string name) "KEYWORD") *terminfo*))
+       (eval-when (:compile-toplevel)
+	 ;; Mark capability as valid for the compiler-macro; needed when
+	 ;; compiling TPUTS.  If there's already a value present, leave
+	 ;; it alone, else just put any non-NIL value there; it'll get
+	 ;; fixed up when the file is loaded.
+	 (setf (gethash ,symbol *capabilities*)
+	       (gethash ,symbol *capabilities* t)))
+       (setf (gethash ,symbol *capabilities*) (cons #',thing ,index))
+       (define-symbol-macro ,name (capability ,symbol *terminfo*))
        (export ',name "TERMINFO"))))
 
 (defcap auto-left-margin boolean 0)
@@ -578,9 +619,9 @@
 
 (defun load-terminfo (name)
   (let ((name (concatenate 'string (list (char name 0) #\/) name)))
-    (dolist (path (list #+CMU "home:.terminfo/"
-			#+Allegro "~/.terminfo/"
-			*terminfo-directory*))
+    (dolist (path (list* #+(or CMU SBCL) "home:.terminfo/"
+			 #+Allegro "~/.terminfo/"
+			 *terminfo-directories*))
       (with-open-file (stream (merge-pathnames name path)
 			      :direction :input
 			      :element-type '(unsigned-byte 8)
@@ -628,9 +669,6 @@
 	      (dotimes (i szstrings)
 		(unless (minusp (setf (aref strings i) (read-short stream)))
 		  (incf count)))
-	      #+CMU
-	      (read-sequence stringtable stream)
-	      #-CMU
 	      (dotimes (i szstringtable)
 		(setf (char stringtable i) (code-char (read-byte stream))))
 	      (let ((xtrings (make-array szstrings :initial-element nil)))
@@ -840,13 +878,91 @@
 		  (error "Invalid integer constant")
 		state14
 		  (error "Conditional expression parser not yet written.")
+
 		terminal
 		  #| that's all, folks |#))
 	      (t (princ c out)))))))
 
+(defun stream-fileno (stream)
+  (typecase stream
+    #+CMU
+    (sys:fd-stream
+     (sys:fd-stream-fd stream))
+    (two-way-stream
+     (stream-fileno (two-way-stream-output-stream stream)))
+    (synonym-stream
+     (stream-fileno (symbol-value (synonym-stream-symbol stream))))
+    (echo-stream
+     (stream-fileno (echo-stream-output-stream stream)))
+    (broadcast-stream
+     (stream-fileno (first (broadcast-stream-streams stream))))
+    (otherwise nil)))
+
+(defun stream-baud-rate (stream)
+  #+CMU
+  (alien:with-alien ((termios (alien:struct unix:termios)))
+    (declare (optimize (ext:inhibit-warnings 3)))
+    (when (unix:unix-tcgetattr (stream-fileno stream) termios)
+      (let ((baud (logand unix:tty-cbaud
+			  (alien:slot termios 'unix:c-cflag))))
+	(if (< baud unix::tty-cbaudex)
+	  (aref #(0 50 75 110 134 150 200 300 600 1200
+		  1800 2400 4800 9600 19200 38400)
+		baud)
+	  (aref #(57600 115200 230400 460800 500000 576000
+		  921600 1000000 1152000 1500000 2000000
+		  2500000 3000000 3500000 4000000)
+		(logxor baud unix::tty-cbaudex)))))))
+
 (defun tputs (string &rest args)
   (when string
-    (princ (apply #'tparm string args) *terminal-io*)
+    (let* ((stream (if (streamp (first args)) (pop args) *terminal-io*))
+	   (terminfo (if (terminfo-p (first args)) (pop args) *terminfo*)))
+      (with-input-from-string (string (apply #'tparm string args))
+	(do ((c (read-char string nil) (read-char string nil)))
+	    ((null c))
+	  (cond ((and (char= c #\$)
+		      (eql (peek-char nil string nil) #\<))
+		 (let ((time 0) (force nil) (rate nil) (pad #\Null))
+
+		   ;; Find out how long to pad for:
+		   (read-char string) ; eat the #\<
+		   (loop
+		     (setq c (read-char string))
+		     (let ((n (digit-char-p c)))
+		       (if n
+			   (setq time (+ (* time 10) n))
+			   (return))))
+		   (if (char= c #\.)
+		       (setq time (+ (* time 10)
+				     (digit-char-p (read-char string)))
+			     c (read-char string))
+		       (setq time (* time 10)))
+		   (when (char= c #\*)
+		     ;; multiply time by "number of lines affected"
+		     ;; but how do I know that??
+		     (setq c (read-char string)))
+		   (when (char= c #\/)
+		     (setq force t c (read-char string)))
+		   (unless (char= c #\>)
+		     (error "Invalid padding specification."))
+
+		   ;; Decide whether to apply padding:
+		   (when (or force (not (capability :xon-xoff terminfo)))
+		     (setq rate (stream-baud-rate stream))
+		     (when (let ((pb (capability :padding-baud-rate terminfo)))
+			     (and rate (or (null pb) (> rate pb))))
+		       (cond ((capability :no-pad-char terminfo)
+			      (finish-output stream)
+			      (sleep (/ time 10000.0)))
+			     (t
+			      (let ((tmp (capability :pad-char terminfo)))
+				(when tmp (setf pad (schar tmp 0))))
+			      (dotimes (i (ceiling (* rate time) 100000))
+				(princ pad stream))))))))
+
+		(t
+		 (princ c stream))))))
     t))
 
 (defun set-terminal (&optional name)
@@ -861,7 +977,7 @@
 				      #| if all else fails |#
 				      "dumb"))))
 
-(if (null *terminfo*)
-    (set-terminal))
+;;(if (null *terminfo*)
+;;    (set-terminal))
 
 (provide :terminfo)

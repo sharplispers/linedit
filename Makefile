@@ -77,7 +77,7 @@ release:
 public_html:
 	$(RSYNC_HTML) && $(HTML_PERMS)
 
-TI_VERSION=1.0
+TI_VERSION=1.0.1
 TI=terminfo_$(TI_VERSION)
 TI_LINK=terminfo_latest.tar.gz
 
