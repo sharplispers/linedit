@@ -87,14 +87,19 @@
 to the appropriate home directory."
   (if (and (> (length string) 0)
 	   (eql (schar string 0) #\~))
-      (flet ((chop (s) (subseq s 0 (1- (length s)))))
-	(let* ((slash-idx (loop for i below (length string)
-				when (eql (schar string i) #\/) return i))
-	       (suffix (and slash-idx (subseq string slash-idx)))
-	       (uname (subseq string 1 slash-idx))
+      (flet ((chop (s) 
+	       (subseq s 0 (1- (length s)))))
+	(let* ((slash-index (loop for i below (length string)
+				  when (eql (schar string i) #\/) 
+				  return i))
+	       (suffix (and slash-index (subseq string slash-index)))
+	       (uname (subseq string 1 slash-index))
 	       (homedir (or (cdr (assoc :home (user-info uname)))
-			    (chop (namestring (user-homedir-pathname))))))
-	(concatenate 'string homedir (or suffix ""))))
+			    (chop (namestring 
+				   (or (probe-file (user-homedir-pathname))
+				       (return-from tilde-expand-string 
+					 string)))))))
+	  (concatenate 'string homedir (or suffix ""))))
       string))
 
 (defun directory-complete (string)
