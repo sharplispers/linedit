@@ -1,0 +1,5 @@
+*.txt
+LICENSE
+*.lisp
+*.c
+*.asd
