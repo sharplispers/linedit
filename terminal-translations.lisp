@@ -25,8 +25,9 @@
 
 (defmacro deftrans (name &rest chords)
   `(dolist (chord ',chords)
-     (when (gethash chord *terminal-translations*)
-       (warn "Multiple translations for ~A." chord))
+     (let ((old (gethash chord *terminal-translations*)))
+       (when (and old (not (equal old ,name)))
+	 (warn "Overriding old translation ~S for ~S with ~S." old chord ,name)))
      (setf (gethash chord *terminal-translations*) ,name)))
 
 (deftrans "C-Space" 0)

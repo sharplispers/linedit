@@ -54,7 +54,7 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.15.10"
+    :version "0.15.11"
     :depends-on (:uffi :terminfo :osicat)
     :components
   (;; Common

@@ -24,6 +24,8 @@
 (declaim (type simple-string *word-delimiters*))
 (defparameter *word-delimiters* "()[]{}',` \"")
 
+(defvar *debug* nil)
+
 (defun required ()
   (error "Required argument missing."))
 

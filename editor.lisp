@@ -29,7 +29,6 @@
 
 (defvar *history* nil)
 (defvar *killring* nil)
-(defvar *debug* nil)
 
 (defclass editor (line rewindable)
   ((commands :reader editor-commands
