@@ -22,7 +22,7 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;; DAMAGE.
-#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.6 2003-11-06 14:33:39 nsiivola Exp $")
+#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.7 2003-11-24 22:05:47 nsiivola Exp $")
 
 (in-package "COMMON-LISP-USER")
 
@@ -36,7 +36,8 @@
 (export '(*terminfo-directories* *terminfo* capability tparm tputs
 	  set-terminal))
 
-(defvar *terminfo-directories* '("/usr/share/terminfo/"
+(defvar *terminfo-directories* '("/etc/terminfo/"
+				 "/usr/share/terminfo/"
 				 "/usr/share/misc/terminfo/"))
 
 (defvar *terminfo* nil)
