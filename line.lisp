@@ -22,20 +22,9 @@
 (in-package :linedit)
 
 (defclass line ()
-  ((string :accessor line-string :initform "" :initarg :string)
-   (point :reader line-point :initform 0 :initarg :point)))
+  ((string :accessor get-string :initform "" :initarg :string)
+   (point :accessor get-point :initform 0 :initarg :point)))
 
-(defun (setf line-point) (point line)
-  (when (<= 0 point (length (line-string line)))
-    (setf (slot-value line 'point) point)))
-
-(defmethod equal? ((a line) (b null))
-  nil)
-
-(defmethod equal? ((a line) (b line))
-  (equal (line-string a) (line-string b)))
-
-(defmethod copy ((line line))
-  (make-instance 'line
-		 :string (copy-seq (line-string line))
-		 :point (line-point line)))
+(defmethod (setf get-point) :around (point line)
+  (when (<= 0 point (length (get-string line)))
+    (call-next-method)))

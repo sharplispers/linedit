@@ -22,16 +22,10 @@
 (in-package :linedit)
 
 (defvar *history* nil)
+(defvar *killring* nil)
 
-(defclass editor ()
-  ((undo-pool :reader undo-pool :initform (make-instance 'pool))
-   (line :reader editor-line :initform (make-instance 'line))
-   (backend :reader editor-backend
-	    :initform (if (smart-terminal-p)
-			  (make-instance 'smart-terminal)
-			  (make-instance 'dumb-terminal))
-	    :initarg :backend)
-   (commands :reader editor-commands
+(defclass editor (line rewindable)
+  ((commands :reader editor-commands
 	     :initform *commands*
 	     :initarg :commands)
    (completer :reader editor-completer
@@ -41,7 +35,7 @@
 	    :initform (or *history* (setf *history* (make-instance 'buffer)))
 	    :initarg :history)
    (killring :reader editor-killring
-	     :initform (make-instance 'buffer)
+	     :initform (or *killring* (setf *killring* (make-instance 'buffer)))
 	     :initarg :killring)
    (insert :reader editor-insert-mode
 	   :initform t
@@ -56,75 +50,80 @@
 	   :initform ""
 	   :initarg :prompt)))
 
-(defun save-line-for-undo (editor)
-  (let ((pool (undo-pool editor))
-	(line (editor-line editor)))
-    (unless (equal? line (last-insert pool))
-      ;; Save only if different than last saved state.
-      (insert (copy line) pool))))
+(defmethod initialize-instance :after ((editor editor) &rest initargs)
+  (save-state editor))
+
+(defclass smart-editor (editor smart-terminal) ())
+(defclass dumb-editor (editor dumb-terminal) ())
+
+(defun make-editor (&rest args)
+  (apply 'make-instance
+	 (if (smart-terminal-p)
+	     'smart-editor
+	     'dumb-editor)
+	 args))
+
+;;; undo
+
+(defun save-state (editor)
+  (let ((string (get-string editor))
+	(last (last-state editor)))
+    (unless (and last (equal string (get-string last)))
+      ;; Save only if different than last saved state
+      (save-rewindable-state editor (make-instance 'line
+						   :string (copy-seq string) 
+						   :point (get-point editor))))))
+
+(defmethod rewind-state ((editor editor))
+  (let ((line (call-next-method)))
+    (setf (get-string editor) (copy-seq (get-string line))
+	  (get-point editor) (get-point line))))
 
 (defvar *debug-info* nil)
 
 (defun next-chord (editor)
-  (display (editor-backend editor)
-	   (editor-prompt editor)
-	   (editor-line editor))
+  (display editor (editor-prompt editor) editor) ; Hmm... ick?
   (forget-yank editor)
-  (let* ((chord (read-chord (editor-backend editor)))
+  (let* ((chord (read-chord editor))
 	 (command (gethash chord (editor-commands editor)
 			   (if (characterp chord)
 			       'add-char
 			       'unknown-command))))
     (setf *debug-info* (list command chord editor))
     (funcall command chord editor))
-  (save-line-for-undo editor))
+  (save-state editor))
 
-(defun editor-string (editor)
-  (line-string (editor-line editor)))
-
-(defun (setf editor-string) (string editor)
-  (let ((limit (line-length-limit (editor-backend editor))))
+(defmethod (setf get-string) (string editor)
+  (let ((limit (line-length-limit editor)))
     (if (and limit (>= (length string) limit))
 	(progn
 	  (beep editor)
 	  (throw 'linedit-loop t))
-	(setf (line-string (editor-line editor)) string))))
-
-(defun (setf editor-line) (line editor)
-  (setf (slot-value editor 'line) line))
-
-(defun editor-point (editor)
-  (line-point (editor-line editor)))
-
-(defun (setf editor-point) (point editor)
-  (setf (line-point (editor-line editor)) point))
+	(call-next-method))))
 
 (defun get-finished-string (editor)
-  (buffer-push (editor-string editor) (editor-history editor))
-  (newline (editor-backend editor))
-  (editor-string editor))
+  (buffer-push (get-string editor) (editor-history editor))
+  (newline editor)
+  (get-string editor))
 
 (defmacro with-editor-point-and-string (((point string) editor) &body forms)
-  `(let ((,point (editor-point ,editor))
-	 (,string (editor-string ,editor)))
+  `(let ((,point (get-point ,editor))
+	 (,string (get-string ,editor)))
      ,@forms))
-
-(defmethod beep ((editor editor))
-  (beep (editor-backend editor)))
 
 (uffi:def-function ("linedit_interrupt" c-interrupt)
     ()
   :returning :void)
 
 (defun editor-interrupt (editor)
-  (without-backend (editor-backend editor) (c-interrupt)))
+  (without-backend editor (c-interrupt)))
 
 (uffi:def-function ("linedit_stop" c-stop)
     ()
   :returning :void)
 
 (defun editor-stop (editor)
-  (without-backend (editor-backend editor) (c-stop)))
+  (without-backend editor (c-stop)))
 
 (defun editor-word-start (editor)
   (with-editor-point-and-string ((point string) editor)
@@ -159,13 +158,13 @@
 (defun editor-word (editor)
   (let ((start (editor-word-start editor))
 	(end (editor-word-end editor)))
-    (subseq (editor-string editor) start end)))
+    (subseq (get-string editor) start end)))
 
 (defun editor-complete (editor)
   (funcall (editor-completer editor) (editor-word editor) editor))
 
 (defun remember-yank (editor)
-  (setf (editor-yank editor) (editor-point editor)))
+  (setf (editor-yank editor) (get-point editor)))
 
 (defun forget-yank (editor)
   (shiftf (editor-last-yank editor) (editor-yank editor) nil))
@@ -178,16 +177,10 @@
   (with-editor-point-and-string ((point string) editor)
     (let ((start (editor-word-start editor))
 	  (end (editor-word-end editor)))
-      (setf (editor-string editor)
+      (setf (get-string editor)
 	    (concat (subseq string 0 start) word (subseq string end))
-	    (editor-point editor) (+ start (length word))))))
-
-(defmethod print-in-columns ((editor editor) list &key width)
-  (print-in-columns (editor-backend editor) list :width width))
-
-(defmethod print-in-lines ((editor editor) string)
-  (print-in-lines (editor-backend editor) string))
+	    (get-point editor) (+ start (length word))))))
 
 (defun in-quoted-string-p (editor)
   (let ((i (editor-word-start editor)))
-    (and (plusp i) (eql #\" (schar (editor-string editor) (1- i))))))
+    (and (plusp i) (eql #\" (schar (get-string editor) (1- i))))))

@@ -22,9 +22,8 @@
 (in-package :linedit)
 
 (defun linedit (&rest keyword-args)
-  (let* ((editor (apply 'make-instance 'editor keyword-args))
-	 (backend (editor-backend editor)))
-    (with-backend backend      
+  (let ((editor (apply 'make-editor keyword-args)))
+    (with-backend editor
       (catch 'linedit-done
 	(loop
 	 (catch 'linedit-loop

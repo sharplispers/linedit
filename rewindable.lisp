@@ -21,35 +21,38 @@
 
 (in-package :linedit)
 
-;;; A pool of states. states can be added to the pool, last one
-;;; retrieved, or pool rewound.
-;;;
-;;; Used to implement undo.
+;;; Mixin that implements undo
 
-(defclass pool ()
-  ((store :reader %pool-store
-	  :initform (make-array 12 :fill-pointer 0 :adjustable t))
+(declaim (optimize (debug 3) (safety 3)))
+
+(defclass rewindable ()
+  ((rewind-store :reader %rewind-store
+		 :initform (make-array 12 :fill-pointer 0 :adjustable t))
    ;; Index is the number of rewinds we've done.
-   (index :accessor %pool-index
-	  :initform 0)))
+   (rewind-index :accessor %rewind-index
+		 :initform 0)))
 
-(defun %pool-size (pool)
-  (fill-pointer (%pool-store pool)))
+(defun %rewind-count (rewindable)
+  (fill-pointer (%rewind-store rewindable)))
 
-(defun last-insert (pool)
-  (let ((size (%pool-size pool)))
-    (unless (zerop size)
-      (aref (%pool-store pool) (1- size)))))
+(defun last-state (rewindable)
+  (let ((size (%rewind-count rewindable)))
+    (if (zerop size)
+	(values nil nil)
+	(values (aref (%rewind-store rewindable) (1- size)) t))))
 
-(defun insert (object pool)
-  (let ((i (%pool-index pool))
-	(store (%pool-store pool)))
-    (unless (zerop i)
+(defun save-rewindable-state (rewindable object)
+  (let ((index (%rewind-index rewindable))
+	(store (%rewind-store rewindable)))
+    (unless (zerop index)
       ;; Reverse the tail of pool, since we've
       ;; gotten to the middle by rewinding.
-      (setf (subseq store i) (nreverse (subseq store i))))
+      (setf (subseq store index) (nreverse (subseq store index))))
     (vector-push-extend object store)))
 
-(defun rewind (pool)
-  (setf (%pool-index pool) (mod (1+ (%pool-index pool)) (%pool-size pool)))
-  (aref (%pool-store pool) (- (%pool-size pool) (%pool-index pool) 1)))
+(defmethod rewind-state ((rewindable rewindable))
+  (invariant (not (zerop (%rewind-count rewindable))))
+  (setf (%rewind-index rewindable) 
+	(mod (1+ (%rewind-index rewindable)) (%rewind-count rewindable)))
+  (aref (%rewind-store rewindable) 
+	(- (%rewind-count rewindable) (%rewind-index rewindable) 1)))

@@ -46,7 +46,9 @@
 		(lambda (in out)
 		  (declare (type stream out in))
 		  (with-input-from-string (in (repl-reader in out))
-		    (terpri)
+		    ;; FIXME: Youch.
+		    (write-char #\newline)
+		    (write-char #\return)
 		    (funcall read-form-fun in out)))
 		(lambda (in out)
 		  (declare (type stream out in))

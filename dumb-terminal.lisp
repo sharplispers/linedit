@@ -30,7 +30,7 @@
   (backend-columns backend))
 
 (defmethod display ((backend dumb-terminal) prompt line)
-  (let ((string (line-string line)))
+  (let ((string (get-string line)))
     (flet ((write-prompt ()
 	     (write-char #\Return)
 	     (write-string prompt)))
@@ -41,5 +41,6 @@
 		      (length string))
 	    do (write-char #\Space))
       (write-prompt)
-      (write-string (subseq string 0 (line-point line)))
+      (write-string (subseq string 0 (get-point line)))
       (force-output))))
+

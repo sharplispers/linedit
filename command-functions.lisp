@@ -31,29 +31,28 @@
 
 (defun add-char (char editor)
   (with-editor-point-and-string ((point string) editor)
-    (setf (editor-string editor)
-	  (concat (subseq string 0 point)
-		  (string char)
-		  (subseq string point)))
-    (incf (editor-point editor))))
+    (setf (get-string editor) (concat (subseq string 0 point)
+				      (string char)
+				      (subseq string point)))
+    (incf (get-point editor))))
 
 (defun delete-char-backwards (chord editor)
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
     ;; Can't delegate to editor because of the SUBSEQ index calc.
     (unless (zerop point)
-      (setf (editor-string editor)
-	    (concat (subseq string 0 (1- point)) (subseq string point))
-	    (editor-point editor) (1- point)))))
+      (setf (get-string editor) (concat (subseq string 0 (1- point)) 
+					(subseq string point))
+	    (get-point editor) (1- point)))))
 
 (defun delete-char-forwards (chord editor)
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
-    (setf (editor-string editor)
-	  (concat (subseq string 0 point) (subseq string (1+ point))))))
+    (setf (get-string editor) (concat (subseq string 0 point) 
+				      (subseq string (1+ point))))))
 
 (defun delete-char-forwards-or-eof (chord editor)
-  (if (equal "" (editor-string editor))
+  (if (equal "" (get-string editor))
       (error 'end-of-file :stream *standard-input*)
       (delete-char-forwards chord editor)))
 
@@ -61,9 +60,9 @@
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
     (let ((i (editor-word-start editor)))
-      (setf (editor-string editor)
-	    (concat (subseq string 0 i) (subseq string point))
-	    (editor-point editor) i))))
+      (setf (get-string editor) (concat (subseq string 0 i) 
+					(subseq string point))
+	    (get-point editor) i))))
 
 (defun finish-input (chord editor)
   (declare (ignore chord editor))
@@ -73,47 +72,47 @@
 
 (defun move-to-bol (chord editor)
   (declare (ignore chord))
-  (setf (editor-point editor) 0))
+  (setf (get-point editor) 0))
 
 (defun move-to-eol (chord editor)
   (declare (ignore chord))
-  (setf (editor-point editor) (length (editor-string editor))))
+  (setf (get-point editor) (length (get-string editor))))
 
 (defun move-char-right (chord editor)
   (declare (ignore chord))
-  (incf (editor-point editor)))
+  (incf (get-point editor)))
 
 (defun move-char-left (chord editor)
   (declare (ignore chord))
-  (decf (editor-point editor)))
+  (decf (get-point editor)))
 
 (defun move-word-backwards (chord editor)
   (declare (ignore chord))
-  (setf (editor-point editor) (editor-word-start editor)))
+  (setf (get-point editor) (editor-word-start editor)))
 
 (defun move-word-forwards (chord editor)
   (declare (ignore chord))
-  (setf (editor-point editor) (editor-word-end editor)))
+  (setf (get-point editor) (editor-word-end editor)))
 
 ;;; UNDO
 
 (defun undo (chord editor)
   (declare (ignore chord))
-  (setf (editor-line editor) (copy (rewind (undo-pool editor))))
+  (rewind-state editor)
   (throw 'linedit-loop t))
 
 ;;; HISTORY
 
 (defun history-previous (chord editor)
   (declare (ignore chord))
-  (aif (buffer-previous (editor-string editor) (editor-history editor))
-       (setf (editor-string editor) it)
+  (aif (buffer-previous (get-string editor) (editor-history editor))
+       (setf (get-string editor) it)
        (beep editor)))
 
 (defun history-next (chord editor) 
   (declare (ignore chord))
-  (aif (buffer-next (editor-string editor) (editor-history editor))
-       (setf (editor-string editor) it)
+  (aif (buffer-next (get-string editor) (editor-history editor))
+       (setf (get-string editor) it)
        (beep editor)))
 
 ;;; KILLING & YANKING
@@ -121,11 +120,11 @@
 (defun %yank (editor)
   (aif (buffer-peek (editor-killring editor))
        (with-editor-point-and-string ((point string) editor)
-	 (setf (editor-string editor)
+	 (setf (get-string editor)
 	       (concat (subseq string 0 (editor-yank editor))
 		       it
 		       (subseq string point))
-	       (editor-point editor) (+ (editor-yank editor) (length it))))
+	       (get-point editor) (+ (editor-yank editor) (length it))))
 	(beep editor)))
 
 (defun yank (chord editor)
@@ -145,15 +144,15 @@
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
     (buffer-push (subseq string point) (editor-killring editor))
-    (setf (editor-string editor) (subseq string 0 point))))
+    (setf (get-string editor) (subseq string 0 point))))
 
 (defun kill-to-bol (chord editor)
   ;; Thanks to Andreas Fuchs
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
     (buffer-push (subseq string 0 point) (editor-killring editor))
-    (setf (editor-string editor) (subseq string point)
-	  (editor-point editor) 0)))
+    (setf (get-string editor) (subseq string point)
+	  (get-point editor) 0)))
 
 (defun copy-region (chord editor)
   (declare (ignore chord))
@@ -171,15 +170,15 @@
        (let ((start (min it point))
 	     (end (max it point)))
 	(copy-region t editor)
-	(setf (editor-string editor)
-	      (concat (subseq string 0 start) (subseq string end))
-	      (editor-point editor) start)))))
+	(setf (get-string editor) (concat (subseq string 0 start) 
+					  (subseq string end))
+	      (get-point editor) start)))))
 
 (defun set-mark (chord editor)
   (declare (ignore chord))
   ;; FIXME: this was (setf mark (unless mark point)) -- modulo correct
   ;; accessors.  Why? Was I not thinking, or am I not thinking now?
-  (setf (editor-mark editor) (editor-point editor)))
+  (setf (editor-mark editor) (get-point editor)))
 
 ;;; SIGNALS
 
@@ -216,9 +215,9 @@
 		      :width (+ max-id max-f 2))))
 
 (defun unknown-command (chord editor)
-  (format *error-output*
-	  "~&Unknown command ~S.~%"
-	  chord))
+  (newline editor)
+  (format *standard-output* "Unknown command ~S." chord)
+  (newline editor))
 
 (defun complete (chord editor)
   (declare (ignore chord))

@@ -38,7 +38,7 @@
 	     (ceiling (1+ n) columns))
 	   (find-col (n)
 	     (rem n columns)))
-      (let* ((new (concat prompt (line-string line)))
+      (let* ((new (concat prompt (get-string line)))
 	     (old (active-string backend))
 	     (end (length new))
 	     (rows (find-row end))
@@ -55,7 +55,7 @@
       (when (and (< start end) (zerop (find-col end)))
 	(ti:tputs ti:cursor-down))
       ;; Place point
-      (let* ((point (+ (length prompt) (line-point line)))
+      (let* ((point (+ (length prompt) (get-point line)))
 	     (point-row (find-row point))
 	     (point-col (find-col point)))
       (loop repeat (- rows point-row)
@@ -65,3 +65,4 @@
       (setf (point-row backend) point-row
 	    (active-string backend) new))))
     (force-output *terminal-io*)))
+

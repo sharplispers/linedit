@@ -48,6 +48,7 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
+    :version "0.14.2"
     :depends-on (:uffi :terminfo)
     :components
   (;; Common
@@ -64,12 +65,13 @@
    (:file "dumb-terminal" :depends-on ("terminal"))
 
    ;; Editor
-   (:file "pool" :depends-on ("utility-macros"))
+   (:file "rewindable" :depends-on ("utility-macros"))
    (:file "line" :depends-on ("utility-macros"))
    (:file "buffer" :depends-on ("utility-macros"))
    (:file "command-keys" :depends-on ("packages"))
    (:c-source-file "signals")
-   (:file "editor" :depends-on ("backend" "pool" "signals" "line" "buffer" "command-keys"))
+   (:file "editor" :depends-on ("backend" "rewindable" "signals"
+				"line" "buffer" "command-keys"))
    (:file "main" :depends-on ("editor"))
    (:file "complete" :depends-on ("utility-macros"))
    (:file "command-functions" :depends-on ("editor"))

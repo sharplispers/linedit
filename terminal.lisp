@@ -125,7 +125,7 @@
     (newline backend)))
 
 (defmethod print-in-lines ((backend terminal) string)
-  (terpri)
+  (newline backend)
   (do ((i 0 (1+ i))
        (lines 0))
       ((= i (length string)))
@@ -137,8 +137,9 @@
       (when (eql #\newline c)
 	(incf lines))
       (write-char c)))
-  (terpri))
+  (newline backend))
 
 (defmethod newline ((backend terminal))
   (write-char #\newline)
-  (write-char #\return))
+  (write-char #\return)
+  (force-output))
