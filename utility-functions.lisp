@@ -49,3 +49,7 @@
   (when *debug*
     (apply #'format *debug* format-string format-args)
     (finish-output *debug*)))
+
+(defun min0 (&rest args)
+  "Like min, except treats NILs as zeroes."
+  (apply #'min (mapcar (lambda (x) (or x 0)) args)))

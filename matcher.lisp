@@ -61,18 +61,19 @@
 
 (defun dwim-mark-parens (string index &key pre-mark post-mark)
   (multiple-value-bind (open close) (dwim-match-parens string index)
-    (if (and open close)
-	(concat (subseq string 0 open)
-		pre-mark
-		(string (schar string open))
-		post-mark
-		(subseq string (1+ open) close)
-		pre-mark
-		(string (schar string close))
-		post-mark
-		(if (> (length string) (1+ close))
-		    (subseq string (1+ close))
-		    ""))
-	string)))
-		
+    (values 
+     (if (and open close)
+	 (concat (subseq string 0 open)
+		 pre-mark
+		 (string (schar string open))
+		 post-mark
+		 (subseq string (1+ open) close)
+		 pre-mark
+		 (string (schar string close))
+		 post-mark
+		 (if (> (length string) (1+ close))
+		     (subseq string (1+ close))
+		     ""))
+	 string)
+     open)))
 
