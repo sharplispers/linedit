@@ -37,23 +37,25 @@
   (when ti:enter-am-mode
     (ti:tputs ti:enter-am-mode)))
 
-(defmethod display ((backend smart-terminal) prompt line point)
-  (let ((*terminal-io* *standard-output*)
-	(columns (backend-columns backend))
-	(line (dwim-mark-parens line point 
-				:pre-mark ti:enter-bold-mode
-				:post-mark ti:exit-attribute-mode)))
+(defmethod display ((backend smart-terminal) &key prompt line point markup)
+  (let* ((*terminal-io* *standard-output*)
+	 (columns (backend-columns backend))
+	 (marked-line (if markup
+			  (dwim-mark-parens line point 
+					    :pre-mark ti:enter-bold-mode
+					    :post-mark ti:exit-attribute-mode)
+			  line)))
     (flet ((find-row (n)
 	     ;; 1+ includes point in row calculations
 	     (ceiling (1+ n) columns))
 	   (find-col (n)
 	     (rem n columns)))
-      (let* ((new (concat prompt line))
+      (let* ((new (concat prompt marked-line))
 	     (old (active-string backend))
-	     (end (length new))
+	     (end (+ (length prompt) (length line))) ;; based on unmarked
 	     (rows (find-row end))
 	     (start (or (mismatch new old) 0))
-	     (start-row (find-row start))
+	     (start-row (find-row start)) ;; markup?
 	     (start-col (find-col start)))
 	;; Move to start of update and clear to eos
 	(ti:tputs ti:column-address start-col)

@@ -48,4 +48,4 @@
 	  ,@forms)
      (backend-init ,backend)))
 
- (defgeneric display (backend prompt line point))
+(defgeneric display (backend &key prompt line point &allow-other-keys))

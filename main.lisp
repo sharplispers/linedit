@@ -29,6 +29,7 @@
 	(loop
 	 (catch 'linedit-loop
 	   (next-chord editor))))
+      (redraw-line editor)
       (get-finished-string editor))))
 
 (defun formedit (&rest args &key (prompt1 "") (prompt2 "")

@@ -26,7 +26,7 @@
 
 (defclass dumb-terminal (terminal) ())
 
-(defmethod display ((backend dumb-terminal) prompt line point)
+(defmethod display ((backend dumb-terminal) &key prompt line point &allow-other-keys)
   (let* ((string (concat prompt line))
 	 (length (length string))
 	 (point (+ point (length prompt)))

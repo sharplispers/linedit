@@ -43,7 +43,7 @@
 
 (defun find-close-paren (string index)
   (loop with count = -1
-	for n from (1+ index) upto (length string)
+	for n from (1+ index) below (length string)
 	do (incf count (paren-count-delta (schar string n)))
 	when (zerop count) return n))
 

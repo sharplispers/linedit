@@ -92,8 +92,15 @@
 
 (defvar *debug-info* nil)
 
+(defun redraw-line (editor &key markup)
+  (display editor 
+	   :prompt (editor-prompt editor) 
+	   :line (get-string editor) 
+	   :point (get-point editor)
+	   :markup markup))
+
 (defun next-chord (editor)
-  (display editor (editor-prompt editor) (get-string editor) (get-point editor))
+  (redraw-line editor :markup t)
   (forget-yank editor)
   (let* ((chord (read-chord editor))
 	 (command (gethash chord (editor-commands editor)
