@@ -25,6 +25,10 @@
 
 (defvar *gcc* "/usr/bin/gcc")
 
+(defvar *gcc-options* '(#-darwin "-shared"
+			#+darwin "-bundle"
+			"-fPIC"))
+
 (defmethod output-files ((o compile-op) (c c-source-file))
   (list (make-pathname :name (component-name c)
 		       :type "so"
@@ -36,9 +40,10 @@
       (funcall loader f))))
 
 (defmethod perform ((o compile-op) (c c-source-file))
-  (unless (zerop (run-shell-command "~A ~A -shared -fPIC -o ~A"
+  (unless (zerop (run-shell-command "~A ~A ~{~A ~}-o ~A"
 				    *gcc*
 				    (namestring (component-pathname c))
+				    *gcc-options*
 				    (namestring (car (output-files o c)))))
     (error 'operation-error :component c :operation o)))
 

@@ -51,5 +51,5 @@
     (vector-push-extend object store)))
 
 (defun rewind (pool)
-  (setf (%pool-index pool) (mod (1+ (%pool-index pool)) (pool-size pool)))
+  (setf (%pool-index pool) (mod (1+ (%pool-index pool)) (%pool-size pool)))
   (aref (%pool-store pool) (- (%pool-size pool) (%pool-index pool) 1)))
