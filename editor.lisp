@@ -63,6 +63,7 @@
 
 (let ((ann nil))
   (defun make-editor (&rest args)
+    (ti:set-terminal)
     (let ((type (if (smart-terminal-p)
 		    'smart-editor
 		    'dumb-editor)))
