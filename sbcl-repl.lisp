@@ -42,7 +42,7 @@
 	  (warn "UNINSTALL-REPL failed: No Linedit REPL present."))
       nil)
 
-    (defun install-repl (&key wrap-current)
+    (defun install-repl (&key wrap-current eof-quits)
       "Installs the Linedit at REPL. Original input handlers can be
 preserved with the :WRAP-CURRENT T."
       (enforce-consistent-state)
@@ -62,19 +62,27 @@ preserved with the :WRAP-CURRENT T."
 		      :prompt1 prompt
 		      :prompt2 (make-string (length prompt) 
 					    :initial-element #\Space))
-		   (end-of-file () (sb-ext:quit))))))
+		   (end-of-file (e)
+		     (if eof-quits
+			 (and (fresh-line) (sb-ext:quit))
+			 ;; Hackins, I know.
+			 "#.''end-of-file"))))))
 	(setf sb-int:*repl-prompt-fun* (constantly ""))
 	(setf sb-int:*repl-read-form-fun*	      
 	      (if wrap-current
 		  (lambda (in out)
 		    (declare (type stream out in))
+		      ;; FIXME: Yich.
+		    (terpri)
 		    (with-input-from-string (in (repl-reader in out))
-		      ;; FIXME: Youch.
-		      (write-char #\newline)
-		      (write-char #\return)
 		      (funcall read-form-fun in out)))
 		  (lambda (in out)
 		    (declare (type stream out in))
-		    (read-from-string (repl-reader in out))))))
+		    (handler-case (read-from-string (repl-reader in out))
+		      (end-of-file () 
+			;; We never get here if eof-quits is true, so...
+			(fresh-line)
+			(write-line "#<end-of-file>")
+			(values)))))))
       t)))
 	  

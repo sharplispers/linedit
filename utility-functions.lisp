@@ -28,12 +28,15 @@
   (error "Required argument missing."))
 
 (defun concat (&rest strings)
-  (apply #'concatenate 'string strings))
+  (apply #'concatenate 'simple-string strings))
 
 (defun word-delimiter-p (char)
-  (declare (string *word-delimiters*)
+  (declare (simple-string *word-delimiters*)
 	   (character char))
   (find char *word-delimiters*))
 
 (defun make-whitespace (n)
   (make-string n :initial-element #\space))
+
+(defun whitespacep (char)
+  (member char '(#\space #\newline #\tab #\return #\page)))

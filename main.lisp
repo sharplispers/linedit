@@ -35,21 +35,31 @@
 (defun formedit (&rest args &key (prompt1 "") (prompt2 "")
 		 &allow-other-keys)
   "Reads a single form of input with line-editing. Returns the form as
-a string.  Not realiable in the presense of customized readtable
-functinality."
+a string. Assumes standard readtable."
   (let ((args (copy-list args)))
     (dolist (key '(:prompt1 :prompt2))
       (remf args key))
     (catch 'form-done
-      (let ((eof-marker (list nil))
-	    (table (copy-readtable *readtable*)))
+      (let ((eof-marker (gensym "EOF"))
+	    (table (copy-readtable)))
+	(set-macro-character #\; #'semicolon-reader nil table)
 	(set-dispatch-macro-character #\# #\. (constantly (values)) table)
 	(do ((str (apply #'linedit :prompt prompt1 args)
 		  (concat str
 			  (string #\newline)
 			  (apply #'linedit :prompt prompt2 args))))
 	    ((let ((form (handler-case (let ((*readtable* table))
-					 (read-from-string str))
-			   (end-of-file () eof-marker))))
+					 ;; Eugh. Argh.
+					 (if (find-if-not 'whitespacep str)
+					     (read-from-string str)
+					     (error 'end-of-file)))
+			   (end-of-file () 
+			     eof-marker))))
 	       (unless (eq eof-marker form)
 		 (throw 'form-done str)))))))))
+
+(defun semicolon-reader (stream char)
+  (declare (ignore char))
+  (loop for char = (read-char stream)
+	until (eql char #\newline))
+  (values))
