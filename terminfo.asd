@@ -23,8 +23,5 @@
 ;; file, not to terminfo.lisp, which has a "Verbatim use and
 ;; redistribution permitted." license.
 
-(in-package :asdf)
-
-(defsystem :terminfo 
-    :version "1.0"
-    :components (:file "terminfo"))
+(asdf:defsystem :terminfo 
+    :components ((:file "terminfo")))

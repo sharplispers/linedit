@@ -46,13 +46,16 @@
 	    (concat (subseq string 0 (1- point)) (subseq string point))
 	    (editor-point editor) (1- point)))))
 
-(defun delete-char-forwards-or-eof (chord editor)
+(defun delete-char-forwards (chord editor)
   (declare (ignore chord))
+  (with-editor-point-and-string ((point string) editor)
+    (setf (editor-string editor)
+	  (concat (subseq string 0 point) (subseq string (1+ point))))))
+
+(defun delete-char-forwards-or-eof (chord editor)
   (if (equal "" (editor-string editor))
       (error 'end-of-file :stream *standard-input*)
-      (with-editor-point-and-string ((point string) editor)
-	(setf (editor-string editor)
-	      (concat (subseq string 0 point) (subseq string (1+ point)))))))
+      (delete-char-forwards chord editor)))
 
 (defun delete-word-backwards (chord editor)
   (declare (ignore chord))

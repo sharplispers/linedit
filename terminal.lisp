@@ -97,23 +97,32 @@
     (not (equal #\q q))))
 
 (defmethod print-in-columns ((backend terminal) list &key width)
-  (terpri)
-  (let ((cols (truncate (backend-columns backend) width)))
-    (do ((item #1=(pop list) #1#)
-	 (i 0 (1+ i))
-	 (line 0))
-	((null item))
-      (when (= i cols)
-	(terpri)
-	(setf i 0)
-	(when (= (1+ (incf line)) (backend-lines backend))
-	  (setf line 0)
-	  (unless (page backend)
-	    (return-from print-in-columns nil))))
-      (write-string item)
-      (loop repeat (- width (length item))
-	    do (write-char #\Space))))
-  (terpri))
+  (unwind-protect
+       (let ((max-col (truncate (backend-columns backend) width))
+	     (col 0)
+	     (line 0)
+	     (pad ""))
+	 (dolist (item list)
+	   ;; Ensure new line
+	   (when (= 1 (incf col)) ; you remember C ? ;)
+	     (newline backend))
+	   ;; Pad after previsous
+	   (write-string pad)
+	   (setf pad "")
+	   ;; Item
+	   (write-string item)
+	   ;; Maybe newline
+	   (cond ((= col max-col)
+		  (setf col 0)
+		  (when (= (1+ (incf line)) (backend-lines backend))
+		    (setf line 0)
+		    (unless (page backend)
+		      (return-from print-in-columns nil))))
+		 (t 
+		  (setf pad (make-string (- width (length item)) 
+					 :initial-element #\space))))))
+    ;; needed for the return-from
+    (newline backend)))
 
 (defmethod print-in-lines ((backend terminal) string)
   (terpri)
@@ -131,4 +140,5 @@
   (terpri))
 
 (defmethod newline ((backend terminal))
-  (terpri))
+  (write-char #\newline)
+  (write-char #\return))

@@ -48,7 +48,7 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :depends-on (:uffi)
+    :depends-on (:uffi :terminfo)
     :components
   (;; Common
    (:file "packages")
@@ -58,11 +58,9 @@
    ;; Backend
    (:file "backend" :depends-on ("utility-macros"))
    (:c-source-file "terminal_glue")
-   (:file "terminal-translations")
+   (:file "terminal-translations" :depends-on ("packages"))
    (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
-   (:file "dumb-terminal" :depends-on ("terminal"))
-   (:file "terminfo")
-   (:file "smart-terminal" :depends-on ("terminal" "terminfo"))
+   (:file "smart-terminal" :depends-on ("terminal"))
    (:file "dumb-terminal" :depends-on ("terminal"))
 
    ;; Editor
