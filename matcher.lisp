@@ -21,6 +21,28 @@
 
 (in-package :linedit)
 
+;;;; QUOTES
+
+;; FIXME: should checking for #\", "\"", et cetera.
+
+(defun quoted-p (string index)
+  (let ((quoted-p nil))
+    (dotimes (n (min index (length string)) quoted-p)
+      (when (eql (schar string n) #\")
+	(setf quoted-p (not quoted-p))))))
+
+(defun find-open-quote (string index)
+  (when (quoted-p string index)
+    (loop for n from (1- index) downto 0
+	  when (eql (schar string n) #\") return n)))
+
+(defun find-close-quote (string index)
+  (when (quoted-p string index)
+    (loop for n from (1+ index) below (length string)
+	  when (eql (schar string n) #\") return n)))
+
+;;;; PARENS
+
 ;; FIXME: This is not the Right Way to do paren matching.
 ;; * use stack, not counting
 ;; * don't count #\( #\) &co
@@ -76,4 +98,3 @@
 		     ""))
 	 string)
      open)))
-

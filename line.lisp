@@ -25,6 +25,11 @@
   ((string :accessor get-string :initform "" :initarg :string)
    (point :accessor get-point :initform 0 :initarg :point)))
 
+(defmethod (setf get-string) :around (string line)
+  (prog1 (call-next-method)
+    (when (>= (get-point line) (length string))
+      (setf (get-point line) (length string)))))
+
 (defmethod (setf get-point) :around (point line)
   (when (<= 0 point (length (get-string line)))
     (call-next-method)))

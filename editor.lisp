@@ -195,6 +195,31 @@ empty string."
     (dbg "~&editor-word: ~S - ~S~%" start end)
     (subseq (get-string editor) start end)))
 
+(defun editor-sexp-start (editor)
+  (with-editor-point-and-string ((point string) editor)
+    (setf point (loop for n from (min point (1- (length string))) downto 0
+		      when (not (whitespacep (schar string n)))
+		      return n))
+    (case (and point (schar string point))
+      ((#\) #\] #\}) (or (find-open-paren string point) 0))
+      ((#\( #\[ #\{) (max (1- point) 0))
+      (#\" (or (find-open-quote string point)
+	       (max (1- point) 0)))
+      (t (editor-previous-word-start editor)))))
+
+(defun editor-sexp-end (editor)
+  (with-editor-point-and-string ((point string) editor)
+    (setf point (loop for n from point below (length string)
+		      when (not (whitespacep (schar string n)))
+		      return n))
+    (case (and point (schar string point))
+      ((#\( #\[ #\{) (or (find-close-paren string point)
+			 (length string)))
+      ((#\) #\] #\}) (min (1+ point) (length string)))
+      (#\" (or (find-close-quote string (1+ point))
+	       (min (1+ point) (length string))))
+      (t (editor-next-word-end editor)))))
+
 (defun editor-complete (editor)
   (funcall (editor-completer editor) (editor-word editor) editor))
 
@@ -217,5 +242,4 @@ empty string."
 	    (get-point editor) (+ start (length word))))))
 
 (defun in-quoted-string-p (editor)
-  (let ((i (editor-word-start editor)))
-    (and (plusp i) (eql #\" (schar (get-string editor) (1- i))))))
+  (quoted-p (get-string editor) (get-point editor)))

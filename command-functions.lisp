@@ -202,23 +202,36 @@
 
 ;;; SEXP MOTION
 
-;; FIXME: all of these only operate on the current editing line.
-;; Also, obviously, all save close-all-sexp are unimplemented.
-
 (defun forward-sexp (chord editor)
-  (declare (ignore chord editor)) nil)
+  (declare (ignore chord))
+  (setf (get-point editor) (editor-sexp-end editor)))
 
 (defun backward-sexp (chord editor)
-  (declare (ignore chord editor)) nil)
+  (declare (ignore chord))
+  (setf (get-point editor) (editor-sexp-start editor)))
 
+;; FIXME: KILL-SEXP is fairly broken, but works for enough of my
+;; common use cases.  Most of its flaws lie in how the EDITOR-SEXP-
+;; functions deal with objects other than lists and strings.
 (defun kill-sexp (chord editor)
-  (declare (ignore chord editor)) nil)
+  (declare (ignore chord))
+  (with-editor-point-and-string ((point string) editor)
+    (let ((start (editor-sexp-start editor))
+	  (end (min (1+ (editor-sexp-end editor)) (length string))))
+      (buffer-push (subseq string start end) (editor-killring editor))
+      (setf (get-string editor) (concat (subseq string 0 start)
+					(subseq string end))
+	    (get-point editor) start))))
 
 (defun close-all-sexp (chord editor)
   (move-to-eol chord editor)
   (do ((string (get-string editor) (get-string editor)))
       ((not (find-open-paren string (length string))))
-    (add-char #\) editor)))
+    (add-char (case (schar string (find-open-paren string (length string)))
+		    (#\( #\))
+		    (#\[ #\])
+		    (#\{ #\}))
+	      editor)))
 
 ;;; SIGNALS
 
