@@ -72,7 +72,7 @@
 (defkey "C-R")
 (defkey "C-S")
 (defkey "C-T")
-(defkey "C-U")
+(defkey "C-U" 'kill-line-to-bol)
 (defkey "C-V")
 (defkey "C-W" 'cut-region)
 (defkey "C-X")

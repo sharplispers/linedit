@@ -25,7 +25,7 @@
 ;;; Methods for compiling .c's to .so's
 ;;;
 
-(defvar *cc* "/usr/bin/cc")
+(defvar *gcc* "/usr/bin/gcc")
 
 (defmethod output-files ((o compile-op) (c c-source-file))
   (list (make-pathname :name (component-name c)
@@ -37,8 +37,8 @@
     (sb-alien:load-1-foreign f)))
 
 (defmethod perform ((o compile-op) (c c-source-file))
-  (unless (zerop (run-shell-command "~A ~A -shared -fpic -o ~A"
-				    *cc*
+  (unless (zerop (run-shell-command "~A ~A -shared -o ~A"
+				    *gcc*
 				    (namestring (component-pathname c))
 				    (namestring (car (output-files o c)))))
     (error 'operation-error :component c :operation o)))

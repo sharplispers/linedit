@@ -31,9 +31,9 @@
        (progn
 	 (setf (line) (concat (subline 0 *yank*) it (subline (point)))
 	       (point) (+ *yank* (length it)))
-	 (refresh))
+	 (redraw-line))
        (beep)))
-  
+
 (defun yank-cycle ()
   (setf *yank* *last-yank*)
   (if (and *yank* (buffer-cycle *kill*))
@@ -50,6 +50,12 @@
 (defun kill-line ()
   (kill-ring-push (subline (point)))
   (setf (line) (subline 0 (point)))
+  (redraw-line))
+
+(defun kill-line-to-bol ()
+  (kill-ring-push (subline 0 (point)))
+  (setf (line) (subline (point)))
+  (setf (point) 0)
   (redraw-line))
 
 (defun copy-region ()
