@@ -86,7 +86,8 @@
 	       (old (active-string backend))
 	       (end (+ (length prompt) (length line))) ;; based on unmarked
 	       (rows (find-row end columns))
-	       (start (min0 markup-start old-markup-start (mismatch new old)))
+	       (start (min* markup-start old-markup-start 
+			    (mismatch new old) end))
 	       (start-row (find-row start columns))
 	       (start-col (find-col start columns))
 	       (point* (+ point (length prompt)))
