@@ -25,6 +25,11 @@
   ((point-row :initform 1 :accessor point-row)
    (active-string :initform "" :accessor active-string)))
 
+(defun smart-terminal-p ()
+  (every (lambda (key)
+	   (ti:capability key))
+	 '(:cursor-up :cursor-down :clr-eos :column-address)))
+
 (defmethod display ((backend smart-terminal) prompt line)
   (let ((*terminal-io* *standard-output*)
 	(columns (backend-columns backend)))

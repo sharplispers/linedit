@@ -27,7 +27,9 @@
   ((undo-pool :reader undo-pool :initform (make-instance 'pool))
    (line :reader editor-line :initform (make-instance 'line))
    (backend :reader editor-backend
-	    :initform (make-instance 'dumb-terminal)
+	    :initform (if (smart-terminal-p)
+			  (make-instance 'smart-terminal)
+			  (make-instance 'dumb-terminal))
 	    :initarg :backend)
    (commands :reader editor-commands
 	     :initform *commands*
