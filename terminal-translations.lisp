@@ -39,10 +39,9 @@
 (deftrans "C-G" 7)
 (deftrans "C-Backspace" 8)
 (deftrans "Tab" 9)
-(deftrans "C-J" 10)
 (deftrans "C-K" 11)
 (deftrans "C-L" 12)
-(deftrans "Return" 13)
+(deftrans "Return" 10 13) ;; Newline and return
 (deftrans "C-N" 14)
 (deftrans "C-O" 15)
 (deftrans "C-P" 16)
