@@ -37,4 +37,3 @@
 
 (defun make-whitespace (n)
   (make-string n :initial-element #\space))
-

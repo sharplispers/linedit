@@ -39,7 +39,10 @@
 
 (defmethod display ((backend smart-terminal) prompt line point)
   (let ((*terminal-io* *standard-output*)
-	(columns (backend-columns backend)))
+	(columns (backend-columns backend))
+	(line (dwim-mark-parens line point 
+				:pre-mark ti:enter-bold-mode
+				:post-mark ti:exit-attribute-mode)))
     (flet ((find-row (n)
 	     ;; 1+ includes point in row calculations
 	     (ceiling (1+ n) columns))

@@ -55,13 +55,14 @@
    (:file "packages")
    (:file "utility-macros" :depends-on ("packages"))
    (:file "utility-functions" :depends-on ("packages"))
+   (:file "matcher" :depends-on ("packages"))
 
    ;; Backend
    (:file "backend" :depends-on ("utility-macros"))
    (:c-source-file "terminal_glue")
    (:file "terminal-translations" :depends-on ("packages"))
    (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
-   (:file "smart-terminal" :depends-on ("terminal"))
+   (:file "smart-terminal" :depends-on ("terminal" "matcher"))
    (:file "dumb-terminal" :depends-on ("terminal"))
 
    ;; Editor
