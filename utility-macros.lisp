@@ -56,7 +56,12 @@
   (with-unique-names (value)
     `(let ((,value ,condition))
        (unless ,value
-	 (error "BUG: You seem to have found a bug in Linedit. Please report this incident ~
-                 along with directions to reproduce and the following message to ~
-                 linedit-devel@common-lisp.net: `Invariant ~S violated.'"
+	 (error "BUG: You seem to have found a bug in Linedit. Please report~
+                 this incident along with directions to reproduce and the ~
+                 following message to linedit-devel@common-lisp.net:~
+                 ~
+                   `Invariant ~S violated.'"
 		',condition)))))
+
+(defmacro ensure (symbol expr)
+  `(or ,symbol (setf ,symbol ,expr)))

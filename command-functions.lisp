@@ -59,7 +59,7 @@
 (defun delete-word-backwards (chord editor)
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
-    (let ((i (editor-word-start editor)))
+    (let ((i (editor-previous-word-start editor)))
       (setf (get-string editor) (concat (subseq string 0 i) 
 					(subseq string point))
 	    (get-point editor) i))))
@@ -72,10 +72,12 @@
 
 (flet ((frob-case (frob editor)
 	 (with-editor-point-and-string ((point string) editor)
-	   (let ((end (editor-word-end editor)))
-	     (setf (get-string editor) (concat (subseq string 0 point)
-					       (funcall frob (subseq string point end))
-					       (subseq string end))
+	   (let ((end (editor-next-word-end editor)))
+	     (setf (get-string editor) (concat 
+					(subseq string 0 point)
+					(funcall frob 
+						 (subseq string point end))
+					(subseq string end))
 		   (get-point editor) end)))))
 
   (defun upcase-word (chord editor)
@@ -106,11 +108,11 @@
 
 (defun move-word-backwards (chord editor)
   (declare (ignore chord))
-  (setf (get-point editor) (editor-word-start editor)))
+  (setf (get-point editor) (editor-previous-word-start editor)))
 
 (defun move-word-forwards (chord editor)
   (declare (ignore chord))
-  (setf (get-point editor) (editor-word-end editor)))
+  (setf (get-point editor) (editor-next-word-end editor)))
 
 ;;; UNDO
 

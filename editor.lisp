@@ -21,13 +21,15 @@
 
 (in-package :linedit)
 
-(defvar *version* #.(symbol-name 
-		     (with-open-file (f (merge-pathnames "version.lisp-expr"
-							 *compile-file-truename*))
+(defvar *version* #.(symbol-name
+		     (with-open-file (f (merge-pathnames 
+					 "version.lisp-expr"
+					 *compile-file-truename*))
 		       (read f))))
 
 (defvar *history* nil)
 (defvar *killring* nil)
+(defvar *debug* nil)
 
 (defclass editor (line rewindable)
   ((commands :reader editor-commands
@@ -37,10 +39,10 @@
 	      :initform 'lisp-complete
 	      :initarg :complete)
    (history :reader editor-history
-	    :initform (or *history* (setf *history* (make-instance 'buffer)))
+	    :initform (ensure *history* (make-instance 'buffer))
 	    :initarg :history)
    (killring :reader editor-killring
-	     :initform (or *killring* (setf *killring* (make-instance 'buffer)))
+	     :initform (ensure *killring* (make-instance 'buffer))
 	     :initarg :killring)
    (insert :reader editor-insert-mode
 	   :initform t
@@ -68,9 +70,11 @@
 		    'smart-editor
 		    'dumb-editor)))
       (unless ann
-	(format t "~&Linedit version ~A [~A mode]~%" *version* (if (eq 'smart-editor type)
-								   "smart"
-								   "dumb")))
+	(format t "~&Linedit version ~A [~A mode]~%" 
+		*version* 
+		(if (eq 'smart-editor type)
+		    "smart"
+		    "dumb")))
       (setf ann t)
       (apply 'make-instance type args))))
 
@@ -81,9 +85,10 @@
 	(last (last-state editor)))
     (unless (and last (equal string (get-string last)))
       ;; Save only if different than last saved state
-      (save-rewindable-state editor (make-instance 'line
-						   :string (copy-seq string) 
-						   :point (get-point editor))))))
+      (save-rewindable-state editor 
+			     (make-instance 'line
+					    :string (copy-seq string) 
+					    :point (get-point editor))))))
 
 (defmethod rewind-state ((editor editor))
   (let ((line (call-next-method)))
@@ -136,38 +141,59 @@
   (without-backend editor (c-stop)))
 
 (defun editor-word-start (editor)
+  "Returns the index of the first letter of current or previous word,
+if the point is just after a word, or the point."
   (with-editor-point-and-string ((point string) editor)
-    ;; Find the first point backwards that is NOT a word-start
-    (let ((non-start (if (and (plusp point)
-			      (word-delimiter-p (char string (1- point))))
-			 (position-if-not 'word-delimiter-p string
-					  :end point
-					  :from-end t)
-			 point)))
-    (or (when non-start
-	  ;; Find the first word-start before that.
-	  (let ((start (position-if 'word-delimiter-p string
-				    :end non-start
-				    :from-end t)))
-	    (when start	(1+ start))))
-	0))))
+    (if (or (not (at-delimiter-p string point))
+	    (not (at-delimiter-p string (1- point))))
+	(1+ (or (position-if 'word-delimiter-p string :end point :from-end t) 
+		-1)) ; start of string
+	point)))
+
+(defun editor-previous-word-start (editor)
+  "Returns the index of the first letter of current or previous word,
+if the point was at the start of a word or between words."
+  (with-editor-point-and-string ((point string) editor)
+    (let ((tmp (cond ((at-delimiter-p string point)
+		      (position-if-not 'word-delimiter-p string 
+				       :end point :from-end t))
+		     ((at-delimiter-p string (1- point))
+		      (position-if-not 'word-delimiter-p string
+				       :end (1- point) :from-end t))
+		     (t point))))
+      ;; tmp is always in the word whose start we want (or NIL)
+      (1+ (or (position-if 'word-delimiter-p string 
+			   :end (or tmp 0) :from-end t) 
+	      -1)))))
 
 (defun editor-word-end (editor)
+  "Returns the index just beyond the current word or the point if
+point is not inside a word."
   (with-editor-point-and-string ((point string) editor)
-    ;; Find the first point forwards that is NOT a word-end
-    (let ((non-end (if (and (< point (length string))
-			    (word-delimiter-p (char string point)))
-		       (position-if-not 'word-delimiter-p string :start point)
-		       point)))
-      (if non-end
-	  ;; Find the first word-end after that
-	  (or (position-if 'word-delimiter-p string :start non-end)
-	      (length string))
-	  point))))
+    (if (at-delimiter-p string point)
+	point
+	(or (position-if 'word-delimiter-p string :start point)
+	    (length string)))))
+
+(defun editor-next-word-end (editor)
+  "Returns the index just beyond the last letter of current or next
+word, if the point was between words."
+  (with-editor-point-and-string ((point string) editor)
+    (let ((tmp (if (at-delimiter-p string point)
+		   (or (position-if-not 'word-delimiter-p string
+					:start point)
+		       (length string))
+		   point)))
+      ;; tmp is always in the word whose end we want (or already at the end)
+      (or (position-if 'word-delimiter-p string :start tmp)
+	  (length string)))))
 
 (defun editor-word (editor)
+  "Returns the current word the point is in or right after, or an
+empty string."
   (let ((start (editor-word-start editor))
 	(end (editor-word-end editor)))
+    (dbg "~&editor-word: ~S - ~S~%" start end)
     (subseq (get-string editor) start end)))
 
 (defun editor-complete (editor)

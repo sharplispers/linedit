@@ -40,3 +40,12 @@
 
 (defun whitespacep (char)
   (member char '(#\space #\newline #\tab #\return #\page)))
+
+(defun at-delimiter-p (string index)
+  (and (< index (length string)) 
+       (word-delimiter-p (char string index))))
+
+(defun dbg (format-string &rest format-args)
+  (when *debug*
+    (apply #'format *debug* format-string format-args)
+    (finish-output *debug*)))
