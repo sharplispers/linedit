@@ -145,7 +145,7 @@
 if the point is just after a word, or the point."
   (with-editor-point-and-string ((point string) editor)
     (if (or (not (at-delimiter-p string point))
-	    (not (at-delimiter-p string (1- point))))
+	    (not (and (plusp point) (at-delimiter-p string (1- point)))))
 	(1+ (or (position-if 'word-delimiter-p string :end point :from-end t) 
 		-1)) ; start of string
 	point)))
@@ -157,7 +157,7 @@ if the point was at the start of a word or between words."
     (let ((tmp (cond ((at-delimiter-p string point)
 		      (position-if-not 'word-delimiter-p string 
 				       :end point :from-end t))
-		     ((at-delimiter-p string (1- point))
+		     ((and (plusp point) (at-delimiter-p string (1- point)))
 		      (position-if-not 'word-delimiter-p string
 				       :end (1- point) :from-end t))
 		     (t point))))

@@ -48,7 +48,7 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.15.8"
+    :version "0.15.9"
     :depends-on (:uffi :terminfo :osicat)
     :components
   (;; Common

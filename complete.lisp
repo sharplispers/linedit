@@ -30,6 +30,11 @@
     (:directory t)
     (:symbolic-link (file-kind (merge-pathnames (read-link pathname) pathname)))))
 
+(defun relative-pathname-p (pathname)
+  (let ((dir (pathname-directory pathname)))
+    (or (null dir)
+	(eq :relative (car dir)))))
+
 ;; This version of directory-complete isn't nice to symlinks, and
 ;; should be replaced by something backed by foreign glue.
 (defun directory-complete (string)
@@ -37,13 +42,16 @@
   (let* ((common nil)
 	 (all nil)
 	 (max 0)
-	 (dir (pathname-directory-pathname string)))
+	 (dir (pathname-directory-pathname string))
+	 (namefun (if (relative-pathname-p string)
+		      #'namestring
+		      (lambda (x) (namestring (merge-pathnames x))))))
     (unless (underlying-directory-p dir)
       (return-from directory-complete (values nil 0)))
     (with-directory-iterator (next dir)
       (loop for entry = (next)
 	    while entry
-	    do (let* ((full (namestring (merge-pathnames entry)))
+	    do (let* ((full (funcall namefun entry))
 		      (diff (mismatch string full)))
 		 (dbg "~& completed: ~A, diff: ~A~%" full diff)
 		 (unless (< diff (length string))
