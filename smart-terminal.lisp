@@ -25,7 +25,7 @@
   ((point-row :initform 1 :accessor point-row)
    (point-col :initform 0 :accessor point-col)
    (active-string :initform "" :accessor active-string)
-   (markup-start :initform 0 :accessor get-markup-start)))
+   (start :initform 0 :accessor get-start)))
 
 (defun set-column-address (n current)
   (if nil
@@ -74,7 +74,7 @@
 (defmethod display ((backend smart-terminal) &key prompt line point markup)
   (let* ((*terminal-io* *standard-output*)
 	 (columns (backend-columns backend))
-	 (old-markup-start (get-markup-start backend))
+	 (old-markup-start (get-start backend))
 	 (old-col (point-col backend)))
     (multiple-value-bind (marked-line markup-start)
 	(if markup
@@ -86,13 +86,13 @@
 	       (old (active-string backend))
 	       (end (+ (length prompt) (length line))) ;; based on unmarked
 	       (rows (find-row end columns))
+	       (point* (+ point (length prompt)))
+	       (point-row (find-row point* columns))
+	       (point-col (find-col point* columns))
 	       (start (min* markup-start old-markup-start 
 			    (mismatch new old) end))
 	       (start-row (find-row start columns))
-	       (start-col (find-col start columns))
-	       (point* (+ point (length prompt)))
-	       (point-row (find-row point* columns))
-	       (point-col (find-col point* columns)))
+	       (start-col (find-col start columns)))
 	  (move-up-in-column
 	   :col start-col 
 	   :up (- (point-row backend) start-row)
@@ -108,5 +108,5 @@
 	  (setf (point-row backend) point-row
 		(point-col backend) point-col
 		(active-string backend) (concat prompt line)
-		(get-markup-start backend) markup-start)
+		(get-start backend) markup-start)
 	  (force-output *terminal-io*)))))

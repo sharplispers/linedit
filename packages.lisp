@@ -25,7 +25,7 @@
    #:linedit
    #:formedit
    #:*default-columns*
-   #:*default-lines*   
+   #:*default-lines*
    #+sbcl #:install-repl
    #+sbcl #:uninstall-repl
    ))

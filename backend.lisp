@@ -26,7 +26,8 @@
 
 (defclass backend ()
   ((ready-p :accessor backend-ready-p :initform nil)
-   (translations :reader backend-translations)))
+   (translations :reader backend-translations)
+   (start :initform 0 :accessor get-start)))
 
 (defmacro with-backend (backend &body forms)
   (with-unique-names (an-error)

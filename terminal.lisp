@@ -144,6 +144,7 @@
   (newline backend))
 
 (defmethod newline ((backend terminal))
+  (setf (get-start backend) 0)
   (write-char #\newline)
   (write-char #\return)
   (force-output))

@@ -45,6 +45,13 @@
   (and (< index (length string)) 
        (word-delimiter-p (char string index))))
 
+(defun start-debug (pathname &rest open-args)
+  (setf *debug* (apply #'open pathname :direction :output open-args)))
+
+(defun end-debug ()
+  (close *debug*)
+  (setf *debug* nil))
+
 (defun dbg (format-string &rest format-args)
   (when *debug*
     (apply #'format *debug* format-string format-args)
@@ -53,3 +60,5 @@
 (defun min* (&rest args)
   "Like min, except ignores NILs."
   (apply #'min (remove-if #'null args)))
+
+	
