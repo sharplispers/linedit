@@ -27,10 +27,14 @@
 
 (defun smart-terminal-p ()
   (every (lambda (key)
-	   (ti:capability key))
-	 '(:cursor-up :cursor-down :clr-eos :column-address)))
+	   (ti:capability key)) '(:cursor-up :cursor-down :clr-eos
+				  :column-address :auto-right-margin)))
 
-(defmethod display ((backend smart-terminal) prompt line)
+(defmethod backend-init ((backend smart-terminal))
+  (call-next-method)
+  (ti:tputs ti:enter-am-mode))
+
+(defmethod display ((backend smart-terminal) prompt line point)
   (let ((*terminal-io* *standard-output*)
 	(columns (backend-columns backend)))
     (flet ((find-row (n)
@@ -38,7 +42,7 @@
 	     (ceiling (1+ n) columns))
 	   (find-col (n)
 	     (rem n columns)))
-      (let* ((new (concat prompt (get-string line)))
+      (let* ((new (concat prompt line))
 	     (old (active-string backend))
 	     (end (length new))
 	     (rows (find-row end))
@@ -55,7 +59,7 @@
       (when (and (< start end) (zerop (find-col end)))
 	(ti:tputs ti:cursor-down))
       ;; Place point
-      (let* ((point (+ (length prompt) (get-point line)))
+      (let* ((point (+ (length prompt) point))
 	     (point-row (find-row point))
 	     (point-col (find-col point)))
       (loop repeat (- rows point-row)

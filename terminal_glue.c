@@ -68,7 +68,7 @@ linedit_terminal_init (void)
 
   return linedit_OK;
 }
-  
+
 int
 linedit_terminal_close (void)
 {

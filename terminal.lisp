@@ -56,6 +56,8 @@
   (invariant (zerop (c-terminal-close)))
   (setf (backend-ready-p backend) nil))
 
+;;; FIXME: Use read-char-no-hang to detect pastes, and set an
+;;; apropriate flag, or something.
 (defmethod read-chord ((backend terminal))
   (invariant (backend-ready-p backend))
   (flet ((read-open-chord ()
@@ -96,6 +98,7 @@
     (write-char #\Return)
     (not (equal #\q q))))
 
+;;; FIXME: Explicit line-wrap needed
 (defmethod print-in-columns ((backend terminal) list &key width)
   (let ((max-col (truncate (backend-columns backend) width))
 	(col 0)

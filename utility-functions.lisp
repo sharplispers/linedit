@@ -34,3 +34,7 @@
   (declare (string *word-delimiters*)
 	   (character char))
   (find char *word-delimiters*))
+
+(defun make-whitespace (n)
+  (make-string n :initial-element #\space))
+

@@ -21,6 +21,7 @@
 
 (in-package :linedit)
 
+(defvar *version* "0.14.4")
 (defvar *history* nil)
 (defvar *killring* nil)
 
@@ -56,12 +57,17 @@
 (defclass smart-editor (editor smart-terminal) ())
 (defclass dumb-editor (editor dumb-terminal) ())
 
-(defun make-editor (&rest args)
-  (apply 'make-instance
-	 (if (smart-terminal-p)
-	     'smart-editor
-	     'dumb-editor)
-	 args))
+(let ((ann nil))
+  (defun make-editor (&rest args)
+    (let ((type (if (smart-terminal-p)
+		    'smart-editor
+		    'dumb-editor)))
+      (unless ann
+	(format t "~&Linedit version ~A [~A mode]~%" *version* (if (eq 'smart-editor type)
+								   "smart"
+								   "dumb")))
+      (setf ann t)
+      (apply 'make-instance type args))))
 
 ;;; undo
 
@@ -82,7 +88,7 @@
 (defvar *debug-info* nil)
 
 (defun next-chord (editor)
-  (display editor (editor-prompt editor) editor) ; Hmm... ick?
+  (display editor (editor-prompt editor) (get-string editor) (get-point editor))
   (forget-yank editor)
   (let* ((chord (read-chord editor))
 	 (command (gethash chord (editor-commands editor)
@@ -92,14 +98,6 @@
     (setf *debug-info* (list command chord editor))
     (funcall command chord editor))
   (save-state editor))
-
-(defmethod (setf get-string) (string editor)
-  (let ((limit (line-length-limit editor)))
-    (if (and limit (>= (length string) limit))
-	(progn
-	  (beep editor)
-	  (throw 'linedit-loop t))
-	(call-next-method))))
 
 (defun get-finished-string (editor)
   (buffer-push (get-string editor) (editor-history editor))

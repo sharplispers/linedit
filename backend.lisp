@@ -47,6 +47,3 @@
 	  (backend-close ,backend)
 	  ,@forms)
      (backend-init ,backend)))
-
-(defmethod line-length-limit ((backend backend))
-  nil)
