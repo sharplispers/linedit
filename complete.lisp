@@ -31,10 +31,13 @@
     (:symbolic-link 
      (file-kind (merge-pathnames (read-link pathname) pathname)))))
 
-(defun relative-pathname-p (pathname)
-  (let ((dir (pathname-directory pathname)))
-    (or (null dir)
-	(eq :relative (car dir)))))
+;;; KLUDGE: now exported from Osicat, but will work with older versions
+;;; for a while.
+#.(when (eq (find-package :osicat) (symbol-package 'relative-pathname-p))
+    '(defun relative-pathname-p (pathname)
+      (let ((dir (pathname-directory pathname)))
+	(or (null dir)
+	    (eq :relative (car dir))))))
 
 (defun logical-pathname-p (pathname)
   (typep (pathname pathname) 'logical-pathname))
