@@ -26,14 +26,16 @@
    (active-string :initform "" :accessor active-string)))
 
 (defun smart-terminal-p ()
-  (every 'identity
-	 '(ti:cursor-up ti:cursor-down 
-	   ti:clr-eos ti:column-address 
-	   ti:auto-right-margin ti:enter-am-mode)))
+  (and (every 'identity
+	      (list ti:cursor-up ti:cursor-down 
+		    ti:clr-eos ti:column-address ))
+       (some 'identity 
+	     (list ti:auto-right-margin ti:enter-am-mode))))
 
 (defmethod backend-init ((backend smart-terminal))
   (call-next-method)
-  (ti:tputs ti:enter-am-mode))
+  (when ti:enter-am-mode
+    (ti:tputs ti:enter-am-mode)))
 
 (defmethod display ((backend smart-terminal) prompt line point)
   (let ((*terminal-io* *standard-output*)

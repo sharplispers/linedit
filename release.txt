@@ -19,3 +19,4 @@ utility-functions.lisp
 utility-macros.lisp
 signals.c
 terminal_glue.c
+version.lisp-expr
