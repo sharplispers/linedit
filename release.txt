@@ -9,6 +9,7 @@ dumb-terminal.lisp
 editor.lisp
 line.lisp
 main.lisp
+matcher.lisp
 packages.lisp
 rewindable.lisp
 sbcl-repl.lisp
