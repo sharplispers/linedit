@@ -65,4 +65,5 @@
 			:depends-on
 			("functions" "commands" "kill" "undo"
                          "history" "termios"))
+		 (:file "repl" :depends-on ("linedit"))			
 		 ))

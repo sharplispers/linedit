@@ -89,14 +89,18 @@
   (catch 'form
     (let ((eof-marker (cons nil nil))
 	  (saved-read-eval *read-eval*)
-	  (*read-eval* nil))
+	  (table (copy-readtable *readtable*)))
+      (set-dispatch-macro-character #\# #\. (constantly (values)) table)
       (do ((str (apply #'linedit :prompt prompt keyword-args) 
-		(concat str " " (apply #'linedit :prompt prompt2 keyword-args))))
-	  ((let ((form (handler-case (read-from-string str)
-			(end-of-file () eof-marker))))
+		(concat str " "
+			(apply #'linedit :prompt prompt2 keyword-args))))
+	  ((let ((form
+		  (handler-case
+		      (let ((*readtable* table))
+			(read-from-string str))
+		    (end-of-file () eof-marker))))
 	     (unless (eq eof-marker form)
-	       (throw 'form (let ((*read-eval* saved-read-eval))
-			      (multiple-value-bind (form n)
-				  (read-from-string str)
-				(values form (subseq str n))))))))
+	       (throw 'form (multiple-value-bind (form n)
+				(read-from-string str)
+			      (values form (subseq str n)))))))
 	(terpri)))))

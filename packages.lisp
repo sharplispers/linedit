@@ -55,4 +55,5 @@
    #:*word-delimiters*
    #:lisp-complete
    #:directory-complete
+   #:install-repl
    ))
