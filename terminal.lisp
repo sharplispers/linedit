@@ -97,32 +97,33 @@
     (not (equal #\q q))))
 
 (defmethod print-in-columns ((backend terminal) list &key width)
-  (unwind-protect
-       (let ((max-col (truncate (backend-columns backend) width))
-	     (col 0)
-	     (line 0)
-	     (pad ""))
-	 (dolist (item list)
-	   ;; Ensure new line
-	   (when (= 1 (incf col)) ; you remember C ? ;)
-	     (newline backend))
-	   ;; Pad after previsous
-	   (write-string pad)
-	   (setf pad "")
-	   ;; Item
-	   (write-string item)
-	   ;; Maybe newline
-	   (cond ((= col max-col)
-		  (setf col 0)
-		  (when (= (1+ (incf line)) (backend-lines backend))
-		    (setf line 0)
-		    (unless (page backend)
-		      (return-from print-in-columns nil))))
-		 (t 
-		  (setf pad (make-string (- width (length item)) 
-					 :initial-element #\space))))))
-    ;; needed for the return-from
-    (newline backend)))
+  (let ((max-col (truncate (backend-columns backend) width))
+	(col 0)
+	(line 0)
+	(pad nil))
+    (newline backend)
+    (dolist (item list)
+      (incf col)
+      ;; Padding
+      (when pad
+	(write-string pad)
+	(setf pad nil))
+      ;; Item
+      (write-string item)
+      ;; Maybe newline
+      (cond ((= col max-col)
+	     (newline backend)
+	     (setf col 0)
+	     (when (= (1+ (incf line)) (backend-lines backend))
+	       (setf line 0)
+	       (unless (page backend)
+		 (return-from print-in-columns nil))))
+	    (t 
+	     (setf pad (make-string (- width (length item)) 
+				    :initial-element #\space)))))
+    ;; Optional newline
+    (when pad
+      (newline backend))))
 
 (defmethod print-in-lines ((backend terminal) string)
   (newline backend)

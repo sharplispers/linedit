@@ -27,7 +27,6 @@
   (when action
     `(setf (gethash ,command *commands*) ,action)))
 
-(defcommand "C-Space" 'set-mark)
 (defcommand "C-A" 'move-to-bol)
 (defcommand "C-B" 'move-char-left)
 (defcommand "C-C" 'interrupt-lisp)
@@ -35,12 +34,9 @@
 (defcommand "C-E" 'move-to-eol)
 (defcommand "C-F" 'move-char-right)
 (defcommand "C-G")
-(defcommand "C-Backspace" 'delete-word-backwards)
-(defcommand "Tab" 'complete)
 (defcommand "C-J")
 (defcommand "C-K" 'kill-to-eol)
 (defcommand "C-L")
-(defcommand "Return" 'finish-input)
 (defcommand "C-N" 'history-next)
 (defcommand "C-O")
 (defcommand "C-P" 'history-previous)
@@ -55,7 +51,6 @@
 (defcommand "C-Y" 'yank)
 (defcommand "C-Z" 'stop-lisp)
 (defcommand "C--" 'undo)
-(defcommand "Backspace" 'delete-char-backwards)
 
 (defcommand "M-A" 'apropos-word)
 (defcommand "M-B" 'move-word-backwards)
@@ -93,6 +88,13 @@
 (defcommand "M-8")
 (defcommand "M-9")
 (defcommand "M-0")
+
+(defcommand "C-Space" 'set-mark)
+(defcommand "C-Backspace" 'delete-word-backwards)
+
+(defcommand "Tab" 'complete)
+(defcommand "Backspace" 'delete-char-backwards)
+(defcommand "Return" 'finish-input)
 
 (defcommand "Up-arrow" 'history-previous)
 (defcommand "Down-arrow" 'history-next)

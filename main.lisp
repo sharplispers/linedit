@@ -22,6 +22,7 @@
 (in-package :linedit)
 
 (defun linedit (&rest keyword-args)
+  "Reads a single line of input with line-editing."
   (let ((editor (apply 'make-editor keyword-args)))
     (with-backend editor
       (catch 'linedit-done
@@ -32,6 +33,9 @@
 
 (defun formedit (&rest args &key (prompt1 "") (prompt2 "")
 		 &allow-other-keys)
+  "Reads a single form of input with line-editing. Returns the form as
+a string.  Not realiable in the presense of customized readtable
+functinality."
   (let ((args (copy-list args)))
     (dolist (key '(:prompt1 :prompt2))
       (remf args key))
