@@ -100,7 +100,7 @@
 (defun redraw-line (editor &key markup)
   (display editor 
 	   :prompt (editor-prompt editor) 
-	   :line (get-string editor) 
+	   :line (get-string editor)
 	   :point (get-point editor)
 	   :markup markup))
 

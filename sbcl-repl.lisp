@@ -74,7 +74,7 @@ preserved with the :WRAP-CURRENT T."
 		    (declare (type stream out in))
 		      ;; FIXME: Yich.
 		    (terpri)
-		    (with-input-from-string (in (repl-reader in out))
+		    (with-input-from-string (in (meta-escape (repl-reader in out)))
 		      (funcall read-form-fun in out)))
 		  (lambda (in out)
 		    (declare (type stream out in))

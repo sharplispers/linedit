@@ -61,4 +61,12 @@
   "Like min, except ignores NILs."
   (apply #'min (remove-if #'null args)))
 
-	
+(defun meta-escape (string)
+  (declare (simple-string string))
+  (let (stack)
+    (loop for i from 1 upto (length string)
+	  for char across string
+	  when (eql #\\ char)
+	  do (push #\\ stack)
+	  do (push char stack))
+    (coerce (nreverse stack) 'simple-string)))
