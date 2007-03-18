@@ -127,14 +127,16 @@
 
 (uffi:def-function ("linedit_interrupt" c-interrupt)
     ()
-  :returning :void)
+  :returning :void
+  :module "signals")
 
 (defun editor-interrupt (editor)
   (without-backend editor (c-interrupt)))
 
 (uffi:def-function ("linedit_stop" c-stop)
     ()
-  :returning :void)
+  :returning :void
+  :module "signals")
 
 (defun editor-stop (editor)
   (without-backend editor (c-stop)))

@@ -43,7 +43,7 @@
 (defmethod perform ((o load-op) (c uffi-c-source-file))
   (let ((loader (intern "LOAD-FOREIGN-LIBRARY" :uffi)))
     (dolist (f (asdf::input-files o c))
-      (funcall loader f))))
+      (funcall loader f :module (pathname-name f)))))
 
 (defmethod perform ((o compile-op) (c uffi-c-source-file))
   (unless (zerop (run-shell-command "~A ~A ~{~A ~}-o ~A"

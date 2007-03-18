@@ -27,7 +27,8 @@
 
 (uffi:def-function ("linedit_terminal_columns" c-terminal-columns)
     ((default :int))
-  :returning :int)
+  :returning :int
+  :module "terminal_glue")
 
 (defmethod backend-columns ((backend terminal))
   (let ((cols (c-terminal-columns *default-columns*)))
@@ -37,14 +38,16 @@
 
 (uffi:def-function ("linedit_terminal_lines" c-terminal-lines)
     ((default :int))
-  :returning :int)
+  :returning :int
+  :module "terminal_glue")
 
 (defmethod backend-lines ((backend terminal))
   (c-terminal-lines *default-lines*))
 
 (uffi:def-function ("linedit_terminal_init" c-terminal-init)
     ()
-  :returning :int)
+  :returning :int
+  :module "terminal_glue")
 
 (defmethod backend-init ((backend terminal))
   (invariant (not (backend-ready-p backend)))
@@ -53,7 +56,8 @@
 
 (uffi:def-function ("linedit_terminal_close" c-terminal-close)
     ()
-  :returning :int)
+  :returning :int
+  :module "terminal_glue")
 
 (defmethod backend-close ((backend terminal))
   (invariant (backend-ready-p backend))
