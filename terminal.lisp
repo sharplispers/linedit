@@ -30,7 +30,10 @@
   :returning :int)
 
 (defmethod backend-columns ((backend terminal))
-  (c-terminal-columns *default-columns*))
+  (let ((cols (c-terminal-columns *default-columns*)))
+    (if (> cols 0)
+        cols
+        *default-columns*)))
 
 (uffi:def-function ("linedit_terminal_lines" c-terminal-lines)
     ((default :int))
