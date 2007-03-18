@@ -73,7 +73,11 @@
   (ti:tputs ti:column-address col))
 
 (defmethod display ((backend smart-terminal) &key prompt line point markup)
-  (let* ((*terminal-io* *standard-output*)
+  (let* (;; SBCL and CMUCL traditionally point *terminal-io* to /dev/tty,
+         ;; and we do output on it assuming it goes to STDOUT. Binding
+         ;; *terminal-io* is unportable, so do it only when needed.
+         #+(or sbcl cmu)
+           (*terminal-io* *standard-output*)
 	 (columns (backend-columns backend))
 	 (old-markup (old-markup backend))
 	 (old-point (old-point backend))

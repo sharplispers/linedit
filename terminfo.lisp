@@ -22,7 +22,7 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 ;;; DAMAGE.
-#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.8 2004-03-01 13:27:42 nsiivola Exp $")
+#+CMU (ext:file-comment "$Header: /project/linedit/cvsroot/src/terminfo.lisp,v 1.9 2007-03-18 01:47:36 nsiivola Exp $")
 
 (in-package "COMMON-LISP-USER")
 
@@ -979,6 +979,8 @@
 				      (sys:getenv "TERM")
 				      #+SBCL
 				      (sb-ext:posix-getenv "TERM")
+                                      #+Lispworks
+                                      (lispworks:environment-variable "TERM")
 				      #| if all else fails |#
 				      "dumb"))))
 
