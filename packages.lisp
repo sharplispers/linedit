@@ -19,18 +19,6 @@
 ;;;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;;;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-;;;; Check requirements -- this might be best done in a separate file,
-;;;; or an asdf method.
-#.(cond 
-    ((stringp osicat:*osicat-version*) 
-     (error "This version of Linedit requires Osicat version 0.4.0 or later, 
-but current Osicat version is ~A." osicat:*osicat-version*))
-    ((consp osicat:*osicat-version*)
-     (unless (<= 4 (second osicat:*osicat-version*))
-       (error "This version of Linedit requires Osicat version 0.4.0 or later, 
-but current Osicat version is ~{~A~^.~}." osicat:*osicat-version*)))
-    (t (error "No Osicat version found.")))
-
 ;;;; Package
 
 (defpackage :linedit

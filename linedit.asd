@@ -28,18 +28,16 @@
 
 (defvar *gcc* "/usr/bin/gcc")
 
-(defvar *gcc-options* '(#-(or darwin macosx) "-shared"
-			#+(or darwin macosx)  "-dynamic"
-			#+(or darwin macosx)  "-arch"
-			#+(or darwin macosx)  "x86_64"
-			#+(or darwin macosx)  "-arch"
-			#+(or darwin macosx)  "i386"
-			#+(or darwin macosx)  "-bundle"
-			#+(or darwin macosx)  "/usr/lib/bundle1.o"
-			#+(or darwin macosx)  "-flat_namespace"
-			#+(or darwin macosx)  "-undefined"
-			#+(or darwin macosx)  "suppress"
-			#-(or darwin macosx) "-fPIC"))
+(defvar *gcc-options*
+  #-(or darwin macosx)
+  (list "-shared" "-fPIC")
+  #+(or darwin macosx)
+  (append
+   (list "-dynamic"  "-bundle")
+   #+(or x86 x86-64)
+   (list "-arch" "x86_64" "-arch" "i386")
+   #-sbcl
+   (list "/usr/lib/bundle1.o" "-flat_namespace" "-undefined" "suppress")))
 
 ;;; Separate class so that we don't mess up other packages
 (defclass uffi-c-source-file (c-source-file) ())
@@ -63,13 +61,13 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.16.1"
+    :version "0.16.2"
     :depends-on (:uffi :terminfo :osicat)
     :components
   (;; Common
    (:file "packages")
-   (:file "utility-macros" :depends-on ("packages"))
    (:file "utility-functions" :depends-on ("packages"))
+   (:file "utility-macros" :depends-on ("packages" "utility-functions"))
    (:file "matcher" :depends-on ("packages"))
 
    ;; Backend
