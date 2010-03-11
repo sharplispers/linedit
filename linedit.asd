@@ -50,7 +50,7 @@
 		       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c uffi-c-source-file))
-  (let ((loader (intern "LOAD-FOREIGN-LIBRARY" :uffi)))
+  (let ((loader (intern (symbol-name '#:load-foreign-library) :uffi)))
     (dolist (f (asdf::input-files o c))
       (funcall loader f :module (pathname-name f)))))
 
