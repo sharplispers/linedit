@@ -19,8 +19,6 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(declaim (optimize (debug 3) (safety 3)))
-
 (defpackage :linedit-system
   (:use :cl :asdf))
 
@@ -61,7 +59,7 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.16.2"
+    :version "0.17.0"
     :depends-on (:uffi :terminfo :osicat)
     :components
   (;; Common
