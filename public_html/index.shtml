@@ -45,22 +45,16 @@
 
       <h2>Installation</h2>
       <div class="level">
-        <p>If you're not yet using Quicklisp, you should be! ...but if
-   	   you need the tarball, latests release of Linedit can
-   	   manually be downloaded from here:
+        <p>If you're not yet
+   	   using <a href="http://www.quicklisp.org/">Quicklisp</a>, you
+   	   should be! ...but if you need the tarball, latests release
+   	   of Linedit can manually be downloaded from here:
 	  <tt><a href="http://common-lisp.net/project/linedit/files/linedit_latest.tar.gz">linedit_latest.tar.gz</a>
 	  </tt>.</p>
 	
-	<p>There is also <a
-	    href="http://common-lisp.net/faq.shtml#checkout">anonymous CVS
-	  </a> and <a
-	    href="http://common-lisp.net/cgi-bin/viewcvs.cgi/?cvsroot=linedit">
-	    ViewCVS
-	  </a>. For reasonably modern CVS clients,</p>
+	<p>The bleeding edge is available from out Git repo:</p>
 
-        <pre>cvs -z3 -d :pserver:anonymous:anonymous@common-lisp.net:/project/linedit/cvsroot co -d linedit src</pre>
-
-	<p>should do the trick.</p>
+        <pre>git clone <a href="http://common-lisp.net/gitweb?p=projects/linedit/linedit.git;a=summary">git://common-lisp.net/projects/linedit/linedit.git</a></pre>
 
       <h3>Installing Linedit at the REPL from .sbclrc</h3>
 
