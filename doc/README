@@ -1,0 +1,56 @@
+-*- Text -*-
+
+LINEDIT
+
+ Linedit is a readline-style library written in Common Lisp that
+ provides customizable line-editing for Common Lisp programs.
+
+ Version 0.11 uses UFFI for foreign bindings, and is hence
+ theoretically portable. The development and testing has so far been
+ carried out on SBCL, however. Patches are welcome.
+
+ The current input handling is only empirically correct -- which is a
+ gentile way of saying "works on my box, dunno about yours". Once
+ again: patches are welcome.
+
+ For more information, and the latest version of Linedit visit
+ the Linedit homepage:
+
+   http://common-lisp.net/project/linedit/
+
+ Questions, feature requests, and bug-reports to
+
+   linedit-devel@common-lisp.net.
+
+
+ USAGE
+ -----
+
+ > (asdf:oos 'asdf:load-op :uffi)
+
+ > (asdf:oos 'asdf:load-op :linedit)
+
+ > (linedit:linedit :prompt "-> ")
+
+ > (linedit:formedit :prompt1 "=> " :prompt2 "|   ")
+
+
+ USING FORMEDIT IN SBCL REPL
+ ---------------------------
+
+  Call (LINEDIT:INSTALL-REPL :WRAP-CURRENT T) in your .sbclrc. If you
+  don't want to preserve your current input handler you can omit the
+  WRAP-CURRENT keyword.
+
+  This should be simple to port to other systems that provide similar
+  hooks.
+
+
+ INTERFACE
+ ---------
+
+  The exported interface used to be documented here, but was cleared
+  out for a while -- until things stabilize a bit more. 1.0 at latest
+  will se it back.
+
+  For the duration you should read the sources.
