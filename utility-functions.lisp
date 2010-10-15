@@ -81,3 +81,20 @@ open-args passed to `open'."
 	  do (push char stack)
 	     (setf last char))
     (coerce (nreverse stack) 'simple-string)))
+
+(defun eof-handler (lisp-name quit-fn)
+  (handler-case
+      (loop
+       (let ((result (linedit :prompt (format nil "Really quit ~A? (y or n) " lisp-name))))
+         (cond
+           ((string= result "") nil)
+           ((char-equal (elt result 0) #\y)
+            (fresh-line)
+            (funcall quit-fn))
+           ((char-equal (elt result 0) #\n)
+            (return-from eof-handler "#.''end-of-file"))
+           (t nil))
+         (format *terminal-io* "Please type \"y\" for yes or \"n\" for no.~%")))
+    (end-of-file ()
+      (fresh-line)
+      (funcall quit-fn))))

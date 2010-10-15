@@ -57,7 +57,7 @@
     `(let ((,value ,condition))
        (unless ,value
 	 (let ((*print-pretty* nil))
-	   (error "BUG: You seem to have found a bug in Linedit. Please report~
+	   (error "BUG: You seem to have found a bug in Linedit. Please report ~
                    this incident along with directions to reproduce and the ~
                    following message to linedit-devel@common-lisp.net:~
                    ~
