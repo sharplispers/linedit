@@ -81,10 +81,10 @@
    (:file "line" :depends-on ("utility-macros"))
    (:file "buffer" :depends-on ("utility-macros"))
    (:file "command-keys" :depends-on ("packages"))
-   (:uffi-c-source-file "signals")
-   (:file "editor" :depends-on ("backend" "rewindable" "signals"
+   (:file "editor" :depends-on ("backend" "rewindable"
 				"line" "buffer" "command-keys"))
    (:file "main" :depends-on ("editor"))
    (:file "complete" :depends-on ("utility-macros"))
    (:file "command-functions" :depends-on ("editor"))
-   #+sbcl (:file "sbcl-repl" :depends-on ("main"))))
+   #+sbcl (:file "sbcl-repl" :depends-on ("main"))
+   #+ccl (:file "ccl-repl" :depends-on ("main"))))

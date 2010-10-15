@@ -125,21 +125,15 @@
 	 (,string (get-string ,editor)))
      ,@forms))
 
-(uffi:def-function ("linedit_interrupt" c-interrupt)
-    ()
-  :returning :void
-  :module "signals")
-
 (defun editor-interrupt (editor)
-  (without-backend editor (c-interrupt)))
-
-(uffi:def-function ("linedit_stop" c-stop)
-    ()
-  :returning :void
-  :module "signals")
+  (without-backend editor
+    ;; On CCL, the signal isn't delivered before this function
+    ;; returns, which leads to blindness at the next prompt, or worse.
+    #+ccl (ccl::interactive-abort)
+    #-ccl (osicat-posix:kill 0 osicat-posix:sigint)))
 
 (defun editor-stop (editor)
-  (without-backend editor (c-stop)))
+  (without-backend editor (osicat-posix:kill 0 osicat-posix:sigtstp)))
 
 (defun editor-word-start (editor)
   "Returns the index of the first letter of current or previous word,

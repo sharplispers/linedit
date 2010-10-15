@@ -37,6 +37,7 @@
 	  set-terminal))
 
 (defvar *terminfo-directories* '("/etc/terminfo/"
+				 "/lib/terminfo/"
 				 "/usr/share/terminfo/"
 				 "/usr/share/misc/terminfo/"))
 
@@ -972,6 +973,8 @@
 
 (defun set-terminal (&optional name)
   (setf *terminfo* (load-terminfo (or name
+				      #+ccl
+				      (ccl:getenv "TERM")
 				      #+CMU
 				      (cdr (assoc "TERM" ext:*environment-list*
 						  :test #'string=))
