@@ -86,5 +86,12 @@
    (:file "main" :depends-on ("editor"))
    (:file "complete" :depends-on ("utility-macros"))
    (:file "command-functions" :depends-on ("editor"))
-   #+sbcl (:file "sbcl-repl" :depends-on ("main"))
-   #+ccl (:file "ccl-repl" :depends-on ("main"))))
+   (:module "ports"
+            :depends-on ("main")
+            :serial t
+            :if-component-dep-fails :try-next
+            :components (;; This has definitions which signal an error, replaced
+                         ;; by port-specific files below when possible.
+                         (:file "generic")
+                         (:file "sbcl" :in-order-to ((compile-op (feature :sbcl))))
+                         (:file "ccl" :in-order-to ((compile-op (feature :ccl))))))))

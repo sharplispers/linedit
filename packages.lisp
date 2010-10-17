@@ -28,9 +28,8 @@
    #:formedit
    #:*default-columns*
    #:*default-lines*
-   #+(or sbcl ccl) #:install-repl
-   #+(or sbcl ccl) #:uninstall-repl
+   #:install-repl
+   #:uninstall-repl
    #:start-debug
    #:end-debug
    ))
-
