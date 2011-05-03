@@ -21,16 +21,38 @@
 
 (in-package :linedit)
 
+(defvar *editor* nil)
+
 (defun linedit (&rest keyword-args)
   "Reads a single line of input with line-editing."
-  (let ((editor (apply 'make-editor keyword-args)))
-    (with-backend editor
-      (catch 'linedit-done
-	(loop
-	 (catch 'linedit-loop
-	   (next-chord editor))))
-      (redraw-line editor)
-      (get-finished-string editor))))
+  (flet ((edit ()
+           (catch 'linedit-done
+             (loop
+               (catch 'linedit-loop
+                 (next-chord *editor*))))
+           (redraw-line *editor*)
+           (get-finished-string *editor*)))
+    (if (and *editor* (backend-ready-p *editor*))
+        ;; FIXME: This is a bit kludgy. It would be nicer to have a new
+        ;; editor object that shares the same backed, kill-ring, etc.
+        (let* ((new (getf keyword-args :prompt))
+               (old (editor-prompt *editor*))
+               (history (copy-buffer (editor-history *editor*)))
+               (string (get-string *editor*))
+               (point (get-point *editor*)))
+          (unwind-protect
+               (progn
+                 (when new
+                   (setf (editor-prompt *editor*) new))
+                 (edit))
+            (when new
+              (setf (editor-prompt *editor*) old))
+            (setf (get-string *editor*) string
+                  (get-point *editor*) point
+                  (editor-history *editor*) history)))
+        (let ((*editor* (apply 'make-editor keyword-args)))
+          (with-backend *editor*
+            (edit))))))
 
 (defun formedit (&rest args &key (prompt1 "") (prompt2 "")
 		 &allow-other-keys)

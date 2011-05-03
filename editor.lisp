@@ -37,7 +37,7 @@
    (completer :reader editor-completer
 	      :initform 'lisp-complete
 	      :initarg :complete)
-   (history :reader editor-history
+   (history :accessor editor-history
 	    :initform (ensure *history* (make-instance 'buffer))
 	    :initarg :history)
    (killring :reader editor-killring
@@ -52,7 +52,7 @@
 	 :initform nil)
    (last-yank :accessor editor-last-yank
 	      :initform nil)
-   (prompt :reader editor-prompt
+   (prompt :accessor editor-prompt
 	   :initform ""
 	   :initarg :prompt)))
 
@@ -96,12 +96,16 @@
 
 (defvar *debug-info* nil)
 
+(defvar *aux-prompt* nil)
+
 (defun redraw-line (editor &key markup)
   (display editor
-	   :prompt (editor-prompt editor)
+	   :prompt (concat (editor-prompt editor) *aux-prompt*)
 	   :line (get-string editor)
 	   :point (get-point editor)
 	   :markup markup))
+
+(defvar *last-command* nil)
 
 (defun next-chord (editor)
   (redraw-line editor :markup t)
@@ -112,7 +116,8 @@
 			       'add-char
 			       'unknown-command))))
     (setf *debug-info* (list command chord editor))
-    (funcall command chord editor))
+    (funcall command chord editor)
+    (setf *last-command* command))
   (save-state editor))
 
 (defun get-finished-string (editor)

@@ -143,6 +143,48 @@
        (setf (get-string editor) it)
        (beep editor)))
 
+(defvar *history-search* nil)
+(defvar *history-needle* nil)
+
+(defun history-search-needle (editor &key direction)
+  (let ((text (if *history-search*
+                  (cond ((and *history-needle*
+                              (member *last-command* '(search-history-backwards
+                                                       search-history-forwards)))
+                         *history-needle*)
+                        (t
+                         (setf *history-needle* (get-string editor))))
+                  (let* ((*history-search* t)
+                         (*aux-prompt* nil))
+                    (linedit :prompt "Search History: ")))))
+    (when *history-search*
+      (setf *aux-prompt* (concat "[" text "] ")))
+    text))
+
+(defun history-search (editor direction)
+  (let* ((text (history-search-needle editor))
+         (history (editor-history editor))
+         (test (lambda (old) (search text old)))
+         (match (unless (equal "" text)
+                  (ecase direction
+                    (:backwards
+                     (buffer-find-previous-if test history))
+                    (:forwards
+                     (buffer-find-next-if test history))))))
+    (unless match
+      (beep editor)
+      (setf match text))
+    (setf (get-string editor) match
+          (get-point editor) (length match))))
+
+(defun search-history-backwards (chord editor)
+  (declare (ignore chord))
+  (history-search editor :backwards))
+
+(defun search-history-forwards (chord editor)
+  (declare (ignore chord))
+  (history-search editor :forwards))
+
 ;;; KILLING & YANKING
 
 (defun %yank (editor)

@@ -52,7 +52,8 @@
 open-args passed to `open'."
   (setf *debug* (apply #'open pathname
 		       :direction :output
-		       (append open-args '(:if-exists :append)))))
+		       (append open-args '(:if-exists :append
+                                           :if-does-not-exist :create)))))
 
 (defun end-debug ()
   "End linedit debugging output."
