@@ -22,7 +22,7 @@
 (in-package :linedit)
 
 (defvar *version* #.(symbol-name
-		     (with-open-file (f (merge-pathnames 
+		     (with-open-file (f (merge-pathnames
 					 "version.lisp-expr"
 					 *compile-file-truename*))
 		       (read f))))
@@ -69,8 +69,8 @@
 		    'smart-editor
 		    'dumb-editor)))
       (unless ann
-	(format t "~&Linedit version ~A [~A mode]~%" 
-		*version* 
+	(format t "~&Linedit version ~A [~A mode]~%"
+		*version*
 		(if (eq 'smart-editor type)
 		    "smart"
 		    "dumb")))
@@ -84,9 +84,9 @@
 	(last (last-state editor)))
     (unless (and last (equal string (get-string last)))
       ;; Save only if different than last saved state
-      (save-rewindable-state editor 
+      (save-rewindable-state editor
 			     (make-instance 'line
-					    :string (copy-seq string) 
+					    :string (copy-seq string)
 					    :point (get-point editor))))))
 
 (defmethod rewind-state ((editor editor))
@@ -97,8 +97,8 @@
 (defvar *debug-info* nil)
 
 (defun redraw-line (editor &key markup)
-  (display editor 
-	   :prompt (editor-prompt editor) 
+  (display editor
+	   :prompt (editor-prompt editor)
 	   :line (get-string editor)
 	   :point (get-point editor)
 	   :markup markup))
@@ -141,7 +141,7 @@ if the point is just after a word, or the point."
   (with-editor-point-and-string ((point string) editor)
     (if (or (not (at-delimiter-p string point))
 	    (not (and (plusp point) (at-delimiter-p string (1- point)))))
-	(1+ (or (position-if 'word-delimiter-p string :end point :from-end t) 
+	(1+ (or (position-if 'word-delimiter-p string :end point :from-end t)
 		-1)) ; start of string
 	point)))
 
@@ -150,15 +150,15 @@ if the point is just after a word, or the point."
 if the point was at the start of a word or between words."
   (with-editor-point-and-string ((point string) editor)
     (let ((tmp (cond ((at-delimiter-p string point)
-		      (position-if-not 'word-delimiter-p string 
+		      (position-if-not 'word-delimiter-p string
 				       :end point :from-end t))
 		     ((and (plusp point) (at-delimiter-p string (1- point)))
 		      (position-if-not 'word-delimiter-p string
 				       :end (1- point) :from-end t))
 		     (t point))))
       ;; tmp is always in the word whose start we want (or NIL)
-      (1+ (or (position-if 'word-delimiter-p string 
-			   :end (or tmp 0) :from-end t) 
+      (1+ (or (position-if 'word-delimiter-p string
+			   :end (or tmp 0) :from-end t)
 	      -1)))))
 
 (defun editor-word-end (editor)

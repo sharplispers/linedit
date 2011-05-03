@@ -41,14 +41,14 @@
   (with-editor-point-and-string ((point string) editor)
     ;; Can't delegate to editor because of the SUBSEQ index calc.
     (unless (zerop point)
-      (setf (get-string editor) (concat (subseq string 0 (1- point)) 
+      (setf (get-string editor) (concat (subseq string 0 (1- point))
 					(subseq string point))
 	    (get-point editor) (1- point)))))
 
 (defun delete-char-forwards (chord editor)
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
-    (setf (get-string editor) (concat (subseq string 0 point) 
+    (setf (get-string editor) (concat (subseq string 0 point)
 				      (subseq string (min (1+ point) (length string)))))))
 
 (defun delete-char-forwards-or-eof (chord editor)
@@ -68,7 +68,7 @@
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)
     (let ((i (editor-previous-word-start editor)))
-      (setf (get-string editor) (concat (subseq string 0 i) 
+      (setf (get-string editor) (concat (subseq string 0 i)
 					(subseq string point))
 	    (get-point editor) i))))
 
@@ -81,9 +81,9 @@
 (flet ((frob-case (frob editor)
 	 (with-editor-point-and-string ((point string) editor)
 	   (let ((end (editor-next-word-end editor)))
-	     (setf (get-string editor) (concat 
+	     (setf (get-string editor) (concat
 					(subseq string 0 point)
-					(funcall frob 
+					(funcall frob
 						 (subseq string point end))
 					(subseq string end))
 		   (get-point editor) end)))))
@@ -137,7 +137,7 @@
        (setf (get-string editor) it)
        (beep editor)))
 
-(defun history-next (chord editor) 
+(defun history-next (chord editor)
   (declare (ignore chord))
   (aif (buffer-next (get-string editor) (editor-history editor))
        (setf (get-string editor) it)
@@ -198,7 +198,7 @@
        (let ((start (min it point))
 	     (end (max it point)))
 	(copy-region t editor)
-	(setf (get-string editor) (concat (subseq string 0 start) 
+	(setf (get-string editor) (concat (subseq string 0 start)
 					  (subseq string end))
 	      (get-point editor) start)))))
 
