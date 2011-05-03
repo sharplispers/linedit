@@ -58,20 +58,22 @@
 (defclass smart-editor (editor smart-terminal) ())
 (defclass dumb-editor (editor dumb-terminal) ())
 
-(let ((ann nil))
-  (defun make-editor (&rest args)
-    (ti:set-terminal)
-    (let ((type (if (smart-terminal-p)
-		    'smart-editor
-		    'dumb-editor)))
-      (unless ann
-	(format t "~&Linedit version ~A [~A mode]~%"
-		*version*
-		(if (eq 'smart-editor type)
-		    "smart"
-		    "dumb")))
-      (setf ann t)
-      (apply 'make-instance type args))))
+(defvar *announced* nil)
+
+(defun make-editor (&rest args)
+  (ti:set-terminal)
+  (let* ((type (if (smart-terminal-p)
+                   'smart-editor
+                   'dumb-editor))
+         (spec (list *version* type)))
+    (unless (equal *announced* spec)
+      (format t "~&Linedit version ~A [~A mode]~%"
+              *version*
+              (if (eq 'smart-editor type)
+                  "smart"
+                  "dumb"))
+      (setf *announced* spec))
+    (apply 'make-instance type args)))
 
 ;;; undo
 

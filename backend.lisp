@@ -23,10 +23,10 @@
 
 (defparameter *default-columns* 80)
 (defparameter *default-lines* 24)
-(defparameter *highlight-color* :green
+(defparameter *highlight-color* nil
   "Color to use for highlighting parentheses. NIL is the current foreground
-color bolded, other options are :BLACK, :RED, :GREEN, :YELLOW, :BLUE,
-:MAGENTA, :CYAN, and :WHITE.")
+color bolded, other options are terminal colors :BLACK, :RED, :GREEN, :YELLOW,
+:BLUE, :MAGENTA, :CYAN, and :WHITE.")
 
 (defclass backend ()
   ((ready-p :accessor backend-ready-p :initform nil)
