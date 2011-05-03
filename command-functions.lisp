@@ -56,6 +56,14 @@
       (error 'end-of-file :stream *standard-input*)
       (delete-char-forwards chord editor)))
 
+(defun delete-word-forwards (chord editor)
+  (declare (ignore chord))
+  (with-editor-point-and-string ((point string) editor)
+    (let ((i (get-point editor))
+          (j (editor-next-word-end editor)))
+      (setf (get-string editor)
+            (concat (subseq string 0 i) (subseq string j))))))
+
 (defun delete-word-backwards (chord editor)
   (declare (ignore chord))
   (with-editor-point-and-string ((point string) editor)

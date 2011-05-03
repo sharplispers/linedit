@@ -59,8 +59,11 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.17.0"
-    :depends-on (:uffi :terminfo :osicat)
+    :version "0.17.1"
+    :description "Readline-style library."
+    :licence "MIT"
+    :author "Nikodemus Siivola <nikodemus@sb-studio.net>"
+    :depends-on (:uffi :terminfo :osicat :alexandria)
     :components
   (;; Common
    (:file "packages")
