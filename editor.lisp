@@ -21,11 +21,7 @@
 
 (in-package :linedit)
 
-(defvar *version* #.(symbol-name
-		     (with-open-file (f (merge-pathnames
-					 "version.lisp-expr"
-					 *compile-file-truename*))
-		       (read f))))
+(defparameter *version* (asdf:component-version (asdf:find-system :linedit)))
 
 (defvar *history* nil)
 (defvar *killring* nil)

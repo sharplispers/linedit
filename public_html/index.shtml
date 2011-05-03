@@ -9,7 +9,7 @@
     <div class="header">
       <h1>Linedit</h1>
       <div class="info">latest version
-	 <!--#include virtual="version.lisp-expr" -->
+	 <!--#include virtual="version.txt" -->
       </div>
     </div>
     <div class="body">

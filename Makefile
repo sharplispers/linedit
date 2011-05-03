@@ -15,7 +15,7 @@
 PROJECT=linedit
 
 # Release version number
-VERSION=`cat version.lisp-expr`
+VERSION=`sbcl --script linedit-version.lisp`
 # Username
 USERNAME=`cat username.txt`
 # List of files included in release
@@ -66,7 +66,7 @@ release:
 	ln -s $(NAME).tar.gz.asc $(LINK).asc
 	ln -s $(NAME).tar.gz $(LINK)
 	mv $(NAME).tar.gz $(NAME).tar.gz.asc $(LINK) $(LINK).asc $(HTML)/files/
-	cp version.lisp-expr $(HTML)/
+	echo $(VERSION) $(HTML)/version.txt
 
 public_html:
 	$(RSYNC_HTML) && $(HTML_PERMS)
