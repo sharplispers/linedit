@@ -93,6 +93,8 @@
 (defcommand "C-M-f" 'forward-sexp)
 (defcommand "C-M-k" 'kill-sexp)
 
+(defcommand "M-Backspace" 'delete-word-backwards)
+
 (defcommand "C-Space" 'set-mark)
 (defcommand "C-Backspace" 'delete-word-backwards)
 

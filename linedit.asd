@@ -59,7 +59,7 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.17.1"
+    :version "0.17.2"
     :description "Readline-style library."
     :licence "MIT"
     :author "Nikodemus Siivola <nikodemus@sb-studio.net>"
