@@ -28,6 +28,7 @@
    #:formedit
    #:*default-columns*
    #:*default-lines*
+   #:*highlight-color*
    #:install-repl
    #:uninstall-repl
    #:start-debug

@@ -72,6 +72,15 @@
   (loop repeat up do (ti:tputs ti:cursor-up))
   (ti:tputs ti:column-address col))
 
+(defun paren-style ()
+  (concat
+   (when *highlight-color*
+     (ti:tparm
+      ti:set-a-foreground
+      (or (position *highlight-color* '(:black :red :green :yellow :blue :magenta :cyan :white))
+          (error "Unknown color: ~S" *highlight-color*))))
+   ti:enter-bold-mode))
+
 (defmethod display ((backend smart-terminal) &key prompt line point markup)
   (let* (;; SBCL and CMUCL traditionally point *terminal-io* to /dev/tty,
          ;; and we do output on it assuming it goes to STDOUT. Binding
@@ -94,8 +103,8 @@
 	    old-row 1))
     (multiple-value-bind (marked-line markup)
 	(if markup
-	    (dwim-mark-parens line point 
-			      :pre-mark ti:enter-bold-mode
+	    (dwim-mark-parens line point
+			      :pre-mark (paren-style)
 			      :post-mark ti:exit-attribute-mode)
 	    (values line point))
 	(let* ((full (concat prompt marked-line))
