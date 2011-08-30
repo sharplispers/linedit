@@ -69,20 +69,6 @@ open-args passed to `open'."
   "Like min, except ignores NILs."
   (apply #'min (remove-if #'null args)))
 
-(defun meta-escape (string)
-  (declare (simple-string string))
-  (let (stack)
-    (loop with last
-	  for i from 1 upto (length string)
-	  for char across string
-	  ;; KLUDGE: Deal with character literals. Not quite sure this is
-	  ;; the right and robust way to do it, though.
-	  when (and (eql #\\ char) (not (eql #\# last)))
-	  do (push #\\ stack)
-	  do (push char stack)
-	     (setf last char))
-    (coerce (nreverse stack) 'simple-string)))
-
 (defun eof-handler (lisp-name quit-fn)
   (handler-case
       (loop
