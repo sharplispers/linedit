@@ -38,7 +38,9 @@ LINEDIT
 
   Do
 
-    (linedit:install-repl :wrap-current t :eof-quits t)
+    (when (interactive-stream-p *standard-input*)
+      (asdf:load-system :linedit)
+      (funcall (intern "INSTALL-REPL" :linedit) :wrap-current t))
 
   in eg. your Lisp initialization file (~/.sbclrc for SBCL). If you
   don't want to preserve your current input handler you can omit the
