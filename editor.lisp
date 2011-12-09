@@ -67,7 +67,7 @@
                    'dumb-editor))
          (spec (list *version* type)))
     (unless (equal *announced* spec)
-      (format t "~&Linedit version ~A [~A mode]~%"
+      (format t "~&Linedit version ~A, ~A mode, ESC-h for help.~%"
               *version*
               (if (eq 'smart-editor type)
                   "smart"

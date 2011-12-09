@@ -32,6 +32,8 @@ LINEDIT
 
   > (linedit:formedit :prompt1 "=> " :prompt2 "|   ")
 
+  Meta-H in the prompt display help. (Try ESC-H if your terminal
+  misbehaves with meta-proper.)
 
  USING LINEDIT IN THE REPL (SBCL AND CCL ONLY)
  ---------------------------------------------
