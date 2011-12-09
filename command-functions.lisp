@@ -350,5 +350,4 @@
   (declare (ignore chord))
   (print-in-lines editor
 		  (with-output-to-string (s)
-		    (describe (find-symbol (string-upcase
-					    (editor-word editor))) s))))
+		    (describe (read-from-string (editor-word editor)) s))))
