@@ -35,6 +35,7 @@ LINEDIT
   Meta-H in the prompt display help. (Try ESC-H if your terminal
   misbehaves with meta-proper.)
 
+
  USING LINEDIT IN THE REPL (SBCL AND CCL ONLY)
  ---------------------------------------------
 
@@ -42,11 +43,15 @@ LINEDIT
 
     (when (interactive-stream-p *standard-input*)
       (asdf:load-system :linedit)
-      (funcall (intern "INSTALL-REPL" :linedit) :wrap-current t))
+      (funcall (intern "INSTALL-REPL" :linedit)
+               ;; Keeps toplevel commands intact, etc.
+               :wrap-current t
+               ;; Should EOF quit after verification?
+               :eof-quits t
+               ;; Persistent history
+               :history "~/.linedit_history"))
 
-  in eg. your Lisp initialization file (~/.sbclrc for SBCL). If you
-  don't want to preserve your current input handler you can omit the
-  WRAP-CURRENT keyword.
+  in eg. your Lisp initialization file (~/.sbclrc for SBCL).
 
 
  INTERFACE
