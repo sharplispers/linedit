@@ -52,9 +52,7 @@
 	    original-rtf nil)
       t))
 
-  (defun install-repl (&key wrap-current eof-quits)
-    "Installs the Linedit at REPL. Original input handlers can be
-preserved with the :WRAP-CURRENT T."
+  (defun install-repl (&key wrap-current eof-quits history killring)
     (when original-rtf
       (warn "INSTALL-REPL failed: Linedit REPL already installed.")
       (return-from install-repl nil))
@@ -76,7 +74,9 @@ preserved with the :WRAP-CURRENT T."
 			       (setf ccl::*quiet-flag* t))))
 		 (handler-case (linedit:formedit :prompt1 prompt
 						 :prompt2 (make-string (length prompt)
-								       :initial-element #\Space))
+								       :initial-element #\Space)
+                                                 :history history
+                                                 :killring killring)
 		   (end-of-file ()
 		     (if eof-quits
 			 (and (fresh-line) (eof-handler "CCL" #'ccl:quit))

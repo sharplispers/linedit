@@ -69,19 +69,29 @@ open-args passed to `open'."
   "Like min, except ignores NILs."
   (apply #'min (remove-if #'null args)))
 
+(defun yes-or-no (control &rest args)
+  "Like Y-OR-N-P, but using linedit functionality."
+  ;; Don't save the query response.
+  (let ((*history* nil)
+        (*killring* nil))
+    (loop
+      (let ((result (linedit :prompt (format nil "~? (y or n) " control args))))
+        (cond
+          ((zerop (length result)))
+          ((char-equal (elt result 0) #\y)
+           (return-from yes-or-no t))
+          ((char-equal (elt result 0) #\n)
+           (return-from yes-or-no nil)))
+        (format *terminal-io* "Please type \"y\" for yes or \"n\" for no.~%")
+        (finish-output *terminal-io*)))))
+
 (defun eof-handler (lisp-name quit-fn)
   (handler-case
-      (loop
-       (let ((result (linedit :prompt (format nil "Really quit ~A? (y or n) " lisp-name))))
-         (cond
-           ((string= result "") nil)
-           ((char-equal (elt result 0) #\y)
-            (fresh-line)
-            (funcall quit-fn))
-           ((char-equal (elt result 0) #\n)
-            (return-from eof-handler "#.''end-of-file"))
-           (t nil))
-         (format *terminal-io* "Please type \"y\" for yes or \"n\" for no.~%")))
+      (cond ((yes-or-no "Really quit ~A?" lisp-name)
+             (fresh-line)
+             (funcall quit-fn))
+            (t
+             (return-from eof-handler "#.''end-of-file")))
     (end-of-file ()
       (fresh-line)
       (funcall quit-fn))))

@@ -32,7 +32,6 @@
 			       (not (or prompt-fun read-form-fun))))))
 
     (defun uninstall-repl ()
-      "Uninstalls the Linedit REPL, restoring original handlers."
       (enforce-consistent-state)
       (if prompt-fun
 	  (setf sb-int:*repl-prompt-fun* prompt-fun
@@ -42,9 +41,7 @@
 	  (warn "UNINSTALL-REPL failed: No Linedit REPL present."))
       nil)
 
-    (defun install-repl (&key wrap-current eof-quits)
-      "Installs the Linedit at REPL. Original input handlers can be
-preserved with the :WRAP-CURRENT T."
+    (defun install-repl (&key wrap-current eof-quits history killring)
       (enforce-consistent-state)
       (when prompt-fun
 	(warn "INSTALL-REPL failed: Linedit REPL already installed.")
@@ -61,7 +58,9 @@ preserved with the :WRAP-CURRENT T."
 		     (linedit:formedit
 		      :prompt1 prompt
 		      :prompt2 (make-string (length prompt)
-					    :initial-element #\Space))
+					    :initial-element #\Space)
+                      :history history
+                      :killring killring)
 		   (end-of-file (e)
 		     (if eof-quits
 			 (and (fresh-line) (eof-handler "SBCL" #'sb-ext:quit))

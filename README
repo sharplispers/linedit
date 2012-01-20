@@ -52,23 +52,38 @@ LINEDIT
  INTERFACE
  ---------
 
-  function INSTALL-REPL &key wrap-current eof-quits
+  function INSTALL-REPL &key wrap-current eof-quits history killring
 
-    Installs Linedit REPL input handler. (SBCL and CCL only.)
+    Installs the Linedit at REPL. (SBCL and CCL only.)
+
+    WRAP-CURRENT keeps current input handlers (eg. toplevel command
+    processors) in place.
+
+    If EOF-QUITS is true, EOF on *STANDARD-INPUT* causes the system to
+    exit after verification.
+
+    HISTORY and KILLRING can be pathname designators, in which case
+    they indicate the file to use for history and killring
+    persistence, respectively."
 
   function UNINSTALL-REPL
 
     Removes Linedit REPL input handler. (SBCL and CCL only.)
 
-  function LINEDIT &rest keys &key prompt
+  function LINEDIT &rest keys &key prompt history killring
 
     Reads a single line of input with line-editing from standard input
     of the process and returns it as a string.
 
-    Results are unspecified if *STANDARD-INPUT* has been bound or altered.
+    Results are unspecified if *STANDARD-INPUT* has been bound or
+    altered.
 
-    :PROMPT specifies the string to print to *STANDARD-OUTPUT* before
-    starting to accept input.
+    PROMPT specifies the string to print to *STANDARD-OUTPUT* before
+    starting the accept input.
+
+    HISTORY and KILLRING can be pathname designators, in which case
+    they indicate the file to use for history and killring
+    persistence, respectively.
 
     Further keyword arguments to LINEDIT are an advanced and
     undocumented topic, but if you're willing to dive into sources you
@@ -76,24 +91,27 @@ LINEDIT
     invocations of LINEDIT, or change the function responsible for
     providing input completion.
 
-  function FORMEDIT &rest keys &key prompt1 prompt2
+  function FORMEDIT &rest keys &key prompt1 prompt2 history killring
 
     Reads a single form (s-expession) of input with line-editing from
     standard input of the process and returns it as a string.
 
     Results are unspecified if *STANDARD-INPUT* has been bound or
-    altered, or if *READTABLE* is not the standard one.
+    altered, or if *READTABLE* is not the standard readtable.
 
-    :PROMPT1 specifies the string to print to *STANDARD-OUTPUT* before
-    starting to accept input.
+    PROMPT1 specifies the string to print to *STANDARD-OUTPUT* before
+    starting the accept input.
 
-    :PROMPT2 specified the string to print to *STANDARD-OUTPUT* when
-    input spans multiple lines (prefixing every but first line of
-    input from the user perspective.)q
+    PROMPT2 specifies the string to print to *STANDARD-OUTPUT* when
+    input spans multiple lines (ie. prefixing every but first line of
+    input.)
+
+    HISTORY and KILLRING can be pathname designators, in which case
+    they indicate the file to use for history and killring
+    persistence, respectively.
 
     Further keyword arguments to FORMEDIT are an advanced and
     undocumented topic, but if you're willing to dive into sources you
     can eg. use multiple kill-rings not shared between different
     invocations of FORMEDIT, or change the function responsible for
     providing input completion.
-
