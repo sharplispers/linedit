@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: ANSI-Common-Lisp; Package: TERMINFO -*-
 
-;;; Copyright © 2001 Paul Foley (mycroft@actrix.gen.nz)
+;;; Copyright 2001 Paul Foley (mycroft@actrix.gen.nz)
 ;;;
 ;;; Permission is hereby granted, free of charge, to any person obtaining
 ;;; a copy of this Software to deal in the Software without restriction,
