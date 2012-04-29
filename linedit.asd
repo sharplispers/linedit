@@ -46,10 +46,10 @@
     (t
       (error "Invalid feature expression: ~S" x))))
 
-(defclass port-file (cl-source-file)
+(defclass linedit-port-file (cl-source-file)
   ((test :initform nil)))
 
-(defmethod shared-initialize :after ((port port-file) slots &key when unless)
+(defmethod shared-initialize :after ((port linedit-port-file) slots &key when unless)
   (setf (slot-value port 'test)
         (cond ((and when unless)
                `(:and ,when (:not ,unless)))
@@ -58,15 +58,15 @@
               (t
                (error "~S has no feature conditionals." port)))))
 
-(defmethod perform :around ((op load-op) (port port-file))
+(defmethod perform :around ((op load-op) (port linedit-port-file))
   (when (featurep (slot-value port 'test))
     (call-next-method)))
 
-(defmethod perform :around ((op load-source-op) (port port-file))
+(defmethod perform :around ((op load-source-op) (port linedit-port-file))
   (when (featurep (slot-value port 'test))
     (call-next-method)))
 
-(defmethod perform :around ((op compile-op) (port port-file))
+(defmethod perform :around ((op compile-op) (port linedit-port-file))
   (when (featurep (slot-value port 'test))
     (call-next-method)))
 
@@ -144,5 +144,5 @@
             :components (;; This has definitions which signal an error, replaced
                          ;; by port-specific files below when possible.
                          (:file "generic")
-                         (:port-file "sbcl" :when :sbcl)
-                         (:port-file "ccl" :when :ccl)))))
+                         (:linedit-port-file "sbcl" :when :sbcl)
+                         (:linedit-port-file "ccl" :when :ccl)))))
