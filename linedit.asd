@@ -24,52 +24,6 @@
 
 (in-package :linedit-system)
 
-;;;; Loading specific files based on features.
-
-(defun featurep (x)
-  (typecase x
-    (cons
-     (case (car x)
-       ((:not not)
-        (cond
-          ((cddr x)
-           (error "Too many subexpressions in feature expression: ~S" x))
-          ((null (cdr x))
-           (error "Too few subexpressions in feature expression: ~S" x))
-          (t (not (featurep (cadr x))))))
-       ((:and and) (every #'featurep (cdr x)))
-       ((:or or) (some #'featurep (cdr x)))
-       (t
-        (error "Unknown operator in feature expression: ~S." x))))
-    (symbol
-     (not (null (member x *features* :test #'eq))))
-    (t
-      (error "Invalid feature expression: ~S" x))))
-
-(defclass linedit-port-file (cl-source-file)
-  ((test :initform nil)))
-
-(defmethod shared-initialize :after ((port linedit-port-file) slots &key when unless)
-  (setf (slot-value port 'test)
-        (cond ((and when unless)
-               `(:and ,when (:not ,unless)))
-              (when)
-              (unless)
-              (t
-               (error "~S has no feature conditionals." port)))))
-
-(defmethod perform :around ((op load-op) (port linedit-port-file))
-  (when (featurep (slot-value port 'test))
-    (call-next-method)))
-
-(defmethod perform :around ((op load-source-op) (port linedit-port-file))
-  (when (featurep (slot-value port 'test))
-    (call-next-method)))
-
-(defmethod perform :around ((op compile-op) (port linedit-port-file))
-  (when (featurep (slot-value port 'test))
-    (call-next-method)))
-
 ;;;; C compiler
 
 (defvar *gcc* "/usr/bin/gcc")
@@ -107,12 +61,13 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.17.5"
-    :description "Readline-style library."
-    :licence "MIT"
-    :author "Nikodemus Siivola <nikodemus@sb-studio.net>"
-    :depends-on (:uffi :terminfo :osicat :alexandria)
-    :components
+  :version "0.17.5"
+  :description "Readline-style library."
+  :licence "MIT"
+  :author "Nikodemus Siivola <nikodemus@sb-studio.net>"
+  :depends-on (:uffi :terminfo :osicat :alexandria)
+  :defsystem-depends-on (:madeira-port)
+  :components
   (;; Common
    (:file "packages")
    (:file "utility-functions" :depends-on ("packages"))
@@ -141,8 +96,6 @@
             :depends-on ("main")
             :serial t
             :if-component-dep-fails :try-next
-            :components (;; This has definitions which signal an error, replaced
-                         ;; by port-specific files below when possible.
-                         (:file "generic")
-                         (:linedit-port-file "sbcl" :when :sbcl)
-                         (:linedit-port-file "ccl" :when :ccl)))))
+            :components ((:madeira-port "sbcl" :when :sbcl)
+                         (:madeira-port "ccl" :when :ccl)
+                         (:madeira-port "generic" :unless (:or :sbcl :ccl))))))
