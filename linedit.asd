@@ -95,7 +95,6 @@
    (:module "ports"
             :depends-on ("main")
             :serial t
-            :if-component-dep-fails :try-next
             :components ((:madeira-port "sbcl" :when :sbcl)
                          (:madeira-port "ccl" :when :ccl)
                          (:madeira-port "generic" :unless (:or :sbcl :ccl))))))
