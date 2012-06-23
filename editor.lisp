@@ -35,7 +35,7 @@
 	      :initarg :complete)
    (history :accessor editor-history)
    (killring :accessor editor-killring)
-   (insert :reader editor-insert-mode
+   (insert :accessor editor-insert-mode
 	   :initform t
 	   :initarg :insert-mode)
    (mark :accessor editor-mark

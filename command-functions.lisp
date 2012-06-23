@@ -31,9 +31,13 @@
 
 (defun add-char (char editor)
   (with-editor-point-and-string ((point string) editor)
-    (setf (get-string editor) (concat (subseq string 0 point)
-				      (string char)
-				      (subseq string point)))
+    (setf (get-string editor)
+          (concat (subseq string 0 point)
+                  (string char)
+                  (if (editor-insert-mode editor)
+                      (subseq string point)
+                      (when (> (length string) (1+ point))
+                        (subseq string (1+ point))))))
     (incf (get-point editor))))
 
 (defun delete-char-backwards (chord editor)
@@ -351,3 +355,7 @@
   (print-in-lines editor
 		  (with-output-to-string (s)
 		    (describe (read-from-string (editor-word editor)) s))))
+
+(defun toggle-insert (chord editor)
+  (declare (ignore chord))
+  (setf (editor-insert-mode editor) (not (editor-insert-mode editor))))
