@@ -22,6 +22,7 @@
 (in-package :linedit)
 
 (defvar *editor* nil)
+(defvar *current-editor* nil)
 
 (defun linedit (&rest keyword-args)
   "Reads a single line of input with line-editing."
@@ -34,7 +35,7 @@
            (get-finished-string *editor*)))
     (if (and *editor* (backend-ready-p *editor*))
         ;; FIXME: This is a bit kludgy. It would be nicer to have a new
-        ;; editor object that shares the same backed, kill-ring, etc.
+        ;; editor object that shares the same backend, kill-ring, etc.
         (let* ((new (getf keyword-args :prompt))
                (old (editor-prompt *editor*))
                (history (copy-buffer (editor-history *editor*)))
@@ -51,6 +52,7 @@
                   (get-point *editor*) point
                   (editor-history *editor*) history)))
         (let ((*editor* (apply 'make-editor keyword-args)))
+	  (setf *current-editor* *editor*)
           (with-backend *editor*
             (edit))))))
 
