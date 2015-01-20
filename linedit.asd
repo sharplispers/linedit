@@ -65,36 +65,36 @@
     :author "Nikodemus Siivola <nikodemus@sb-studio.net>"
     :depends-on (:uffi :terminfo :osicat :alexandria)
     :components
-  (;; Common
-   (:file "packages")
-   (:file "utility-functions" :depends-on ("packages"))
-   (:file "utility-macros" :depends-on ("packages" "utility-functions"))
-   (:file "matcher" :depends-on ("packages"))
+    ( ;; Common
+     (:file "packages")
+     (:file "utility-functions" :depends-on ("packages"))
+     (:file "utility-macros" :depends-on ("packages" "utility-functions"))
+     (:file "matcher" :depends-on ("packages"))
 
-   ;; Backend
-   (:file "backend" :depends-on ("utility-macros"))
-   (:uffi-c-source-file "terminal_glue")
-   (:file "terminal-translations" :depends-on ("packages"))
-   (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
-   (:file "smart-terminal" :depends-on ("terminal" "matcher"))
-   (:file "dumb-terminal" :depends-on ("terminal"))
+     ;; Backend
+     (:file "backend" :depends-on ("utility-macros"))
+     (:uffi-c-source-file "terminal_glue")
+     (:file "terminal-translations" :depends-on ("packages"))
+     (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
+     (:file "smart-terminal" :depends-on ("terminal" "matcher"))
+     (:file "dumb-terminal" :depends-on ("terminal"))
 
-   ;; Editor
-   (:file "rewindable" :depends-on ("utility-macros"))
-   (:file "line" :depends-on ("utility-macros"))
-   (:file "buffer" :depends-on ("utility-macros"))
-   (:file "command-keys" :depends-on ("packages"))
-   (:file "editor" :depends-on ("backend" "rewindable"
-				"line" "buffer" "command-keys"))
-   (:file "main" :depends-on ("editor"))
-   (:file "complete" :depends-on ("utility-macros"))
-   (:file "command-functions" :depends-on ("editor"))
-   (:module "ports"
-            :depends-on ("main")
-            :serial t
-            :if-component-dep-fails :try-next
-            :components (;; This has definitions which signal an error, replaced
-                         ;; by port-specific files below when possible.
-                         (:file "generic")
-                         (:file "sbcl" :in-order-to ((compile-op (feature :sbcl))))
-                         (:file "ccl" :in-order-to ((compile-op (feature :ccl))))))))
+     ;; Editor
+     (:file "rewindable" :depends-on ("utility-macros"))
+     (:file "line" :depends-on ("utility-macros"))
+     (:file "buffer" :depends-on ("utility-macros"))
+     (:file "command-keys" :depends-on ("packages"))
+     (:file "editor" :depends-on ("backend" "rewindable"
+					    "line" "buffer" "command-keys"))
+     (:file "main" :depends-on ("editor"))
+     (:file "complete" :depends-on ("utility-macros"))
+     (:file "command-functions" :depends-on ("editor"))
+     (:module "ports"
+	      :depends-on ("main")
+	      :serial t
+	      ;; :if-component-dep-fails :try-next
+	      :components ( ;; This has definitions which signal an error, replaced
+			   ;; by port-specific files below when possible.
+			   (:file "generic")
+			   #+sbcl (:file "sbcl")
+			   #+ccl (:file "ccl")))))
