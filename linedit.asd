@@ -26,7 +26,7 @@
 
 ;;;; C compiler
 
-(defvar *gcc* "/usr/bin/gcc")
+(defvar *gcc* "/usr/bin/cc")
 
 (defvar *gcc-options*
   #-(or darwin macosx)
