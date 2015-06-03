@@ -23,5 +23,8 @@
 ;; file, not to terminfo.lisp, which has a "Verbatim use and
 ;; redistribution permitted." license.
 
-(asdf:defsystem :terminfo 
+(asdf:defsystem :terminfo
+    :description "Interface to the terminfo database"
+    :licence "MIT"
+    :author "Paul Foley <mycroft@actrix.gen.nz>"
     :components ((:file "terminfo")))
