@@ -54,6 +54,8 @@
           (with-backend *editor*
             (edit))))))
 
+(defvar *level* 0)
+
 (defun formedit (&rest args &key (prompt1 "") (prompt2 "")
 		 &allow-other-keys)
   "Reads a single form of input with line-editing. Returns the form as
@@ -75,7 +77,11 @@ a string. Assumes standard readtable."
 			  (string #\newline)
 			  (apply #'linedit :prompt prompt2 args))))
 	    ((let ((form (handler-case (let ((*readtable* table)
-					     (*package* (make-package "LINEDIT-SCRATCH")))
+                                             (*level* (1+ *level*))
+					     (*package* (make-package
+                                                         ;; If we manage to get into a nested read,
+                                                         ;; make sure we don't try to use the same package.
+                                                         (format nil "LINEDIT-SCRATCH#~A" *level*))))
 					 ;; KLUDGE: This is needed to handle input that starts
 					 ;; with an empty line. (At least in the presense of
 					 ;; ACLREPL).
