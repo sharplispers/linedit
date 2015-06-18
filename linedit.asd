@@ -59,13 +59,15 @@
     (error 'operation-error :component c :operation o)))
 
 (defsystem :linedit
-    :version "0.17.4"
-    :description "Readline-style library."
-    :licence "MIT"
-    :author "Nikodemus Siivola <nikodemus@random-state.net>"
-    :depends-on (:uffi :terminfo :osicat :alexandria)
-    :components
-  (;; Common
+  :version "0.17.4"
+  :description "Readline-style library."
+  :licence "MIT"
+  :author "Nikodemus Siivola <nikodemus@random-state.net>"
+  :depends-on (:uffi :terminfo :osicat :alexandria)
+  :defsystem-depends-on (:madeira-port)
+  :components
+  (
+   ;; Common
    (:file "packages")
    (:file "utility-functions" :depends-on ("packages"))
    (:file "utility-macros" :depends-on ("packages" "utility-functions"))
@@ -85,16 +87,13 @@
    (:file "buffer" :depends-on ("utility-macros"))
    (:file "command-keys" :depends-on ("packages"))
    (:file "editor" :depends-on ("backend" "rewindable"
-				"line" "buffer" "command-keys"))
+                                          "line" "buffer" "command-keys"))
    (:file "main" :depends-on ("editor"))
    (:file "complete" :depends-on ("utility-macros"))
    (:file "command-functions" :depends-on ("editor"))
    (:module "ports"
-            :depends-on ("main")
-            :serial t
-            :if-component-dep-fails :try-next
-            :components (;; This has definitions which signal an error, replaced
-                         ;; by port-specific files below when possible.
-                         (:file "generic")
-                         (:file "sbcl" :in-order-to ((compile-op (feature :sbcl))))
-                         (:file "ccl" :in-order-to ((compile-op (feature :ccl))))))))
+    :depends-on ("main")
+    :components
+    ((:madeira-port "sbcl" :when :sbcl)
+     (:madeira-port "ccl" :when :ccl)
+     (:madeira-port "generic" :unless (:or :sbcl :ccl))))))
