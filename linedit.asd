@@ -51,7 +51,7 @@
       (funcall loader f :module (pathname-name f)))))
 
 (defmethod perform ((o compile-op) (c uffi-c-source-file))
-  (unless (zerop (run-shell-command "~A ~A ~{~A ~}-o ~A"
+  (unless (zerop (run-shell-command "~S ~S ~{~S ~}-o ~S"
 				    *gcc*
 				    (namestring (component-pathname c))
 				    *gcc-options*
