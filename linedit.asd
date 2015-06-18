@@ -62,7 +62,7 @@
     :version "0.17.4"
     :description "Readline-style library."
     :licence "MIT"
-    :author "Nikodemus Siivola <nikodemus@sb-studio.net>"
+    :author "Nikodemus Siivola <nikodemus@random-state.net>"
     :depends-on (:uffi :terminfo :osicat :alexandria)
     :components
   (;; Common
