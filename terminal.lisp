@@ -96,7 +96,7 @@
 
 (defmethod beep ((b terminal))
   (declare (ignore b))
-  (and (write-char #\Bell *error-output*)
+  (and (write-char #\Bel *error-output*)
        (force-output *error-output*)))
 
 (defmethod page ((backend terminal))
