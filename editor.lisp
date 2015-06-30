@@ -33,13 +33,9 @@
    (completer :reader editor-completer
 	      :initform 'lisp-complete
 	      :initarg :complete)
-   (history :accessor editor-history
-	    :initform (ensure *history* (make-instance 'buffer))
-	    :initarg :history)
-   (killring :reader editor-killring
-	     :initform (ensure *killring* (make-instance 'buffer))
-	     :initarg :killring)
-   (insert :reader editor-insert-mode
+   (history :accessor editor-history)
+   (killring :accessor editor-killring)
+   (insert :accessor editor-insert-mode
 	   :initform t
 	   :initarg :insert-mode)
    (mark :accessor editor-mark
@@ -52,7 +48,15 @@
 	   :initform ""
 	   :initarg :prompt)))
 
-(defmethod initialize-instance :after ((editor editor) &rest initargs)
+(defmethod initialize-instance :after ((editor editor) &rest initargs &key history killring)
+  (let ((history (ensure-buffer (or history *history*))))
+    (unless *history*
+      (setf *history* history))
+    (setf (editor-history editor) history))
+  (let ((killring (ensure-buffer (or killring *killring*))))
+    (unless *killring*
+      (setf *killring* killring))
+    (setf (editor-killring editor) killring))
   (save-state editor))
 
 (defclass smart-editor (editor smart-terminal) ())
@@ -67,7 +71,7 @@
                    'dumb-editor))
          (spec (list *version* type)))
     (unless (equal *announced* spec)
-      (format t "~&Linedit version ~A [~A mode]~%"
+      (format t "~&Linedit version ~A, ~A mode, ESC-h for help.~%"
               *version*
               (if (eq 'smart-editor type)
                   "smart"

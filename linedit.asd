@@ -24,7 +24,9 @@
 
 (in-package :linedit-system)
 
-(defvar *gcc* "/usr/bin/gcc")
+;;;; C compiler
+
+(defvar *gcc* "/usr/bin/cc")
 
 (defvar *gcc-options*
   #-(or darwin macosx)
@@ -37,13 +39,13 @@
    #-sbcl
    (list "/usr/lib/bundle1.o" "-flat_namespace" "-undefined" "suppress")))
 
-;;; Separate class so that we don't mess up other packages
+;;;; Separate class so that we don't mess up other packages
 (defclass uffi-c-source-file (c-source-file) ())
 
 (defmethod output-files ((o compile-op) (c uffi-c-source-file))
   (list (make-pathname :name (component-name c)
-		       :type #-(or darwin macosx) "so" #+(or darwin macosx) "dylib"
-		       :defaults (component-pathname c))))
+                       :type #-(or darwin macosx) "so" #+(or darwin macosx) "dylib"
+                       :defaults (component-pathname c))))
 
 (defmethod perform ((o load-op) (c uffi-c-source-file))
   (let ((loader (intern (symbol-name '#:load-foreign-library) :uffi)))
@@ -92,8 +94,8 @@
    (:file "complete" :depends-on ("utility-macros"))
    (:file "command-functions" :depends-on ("editor"))
    (:module "ports"
-	    :depends-on ("main")
-	    :components
-	    ((:madeira-port "sbcl" :when :sbcl)
-	     (:madeira-port "ccl" :when :ccl)
-	     (:madeira-port "generic" :unless (:or :sbcl :ccl))))))
+            :depends-on ("main")
+            :serial t
+            :components ((:madeira-port "sbcl" :when :sbcl)
+                         (:madeira-port "ccl" :when :ccl)
+                         (:madeira-port "generic" :unless (:or :sbcl :ccl))))))
