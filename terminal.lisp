@@ -94,10 +94,14 @@
 		   chord
 		   (list 'untranslated chord))))))
 
+;;; ASCII 7 should ring the terminal bell. This is hopefully marginally more
+;;; robust than #\Bel -- some implementations might eg. call it #\Bell, which
+;;; is unicode character in eg. SBCL.
+(defconstant +terminal-bell+ (code-char 7))
+
 (defmethod beep ((b terminal))
   (declare (ignore b))
-  #+ (or)
-  (and (write-char #\Bell *error-output*)
+  (and (write-char +terminal-bell+ *error-output*)
        (force-output *error-output*)))
 
 (defmethod page ((backend terminal))
