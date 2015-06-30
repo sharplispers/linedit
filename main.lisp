@@ -22,7 +22,6 @@
 (in-package :linedit)
 
 (defvar *editor* nil)
-(defvar *current-editor* nil)
 
 (defun linedit (&rest keyword-args &key prompt history killring &allow-other-keys)
   "Reads a single line of input with line-editing from standard input
@@ -69,7 +68,6 @@ completion."
                   (get-point *editor*) point
                   (editor-history *editor*) history)))
         (let ((*editor* (apply 'make-editor keyword-args)))
-	  (setf *current-editor* *editor*)
           (with-backend *editor*
             (edit))))))
 
