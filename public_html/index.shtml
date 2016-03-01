@@ -18,7 +18,7 @@
 	Lisp that provides customizable line-editing features, licensed
 	under a MIT-style <a href="license.html">license</a>.</p>
       
-      <p>Linedit uses <a href="http://uffi.b9.com/">UFFI</a> for
+      <p>Linedit uses <a href="https://common-lisp.net/project/cffi/">CFFI</a> for
 	foreign bindings, so it is a least theoretically portable,
 	though REPL-wrapping is currently <a
 	href="http://www.sbcl.org/">SBCL</a> specific.</p>

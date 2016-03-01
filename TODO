@@ -5,9 +5,7 @@
 
 Linedit TODO
 
-* Use CFFI instead of UFFI.
 * Use terminfo properly instead of ad-hoc terminal translations.
-* See how much of the C-side glue is really necessary.
 * Multi-line editing is ugly and doesn't match parens across lines.
 * Some of the terminal stuff is very similar to bits of TTY hemlock
 *** Maybe refactor into a library both can use?

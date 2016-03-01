@@ -24,46 +24,12 @@
 
 (in-package :linedit-system)
 
-(defvar *gcc* "/usr/bin/gcc")
-
-(defvar *gcc-options*
-  #-(or darwin macosx)
-  (list "-shared" "-fPIC")
-  #+(or darwin macosx)
-  (append
-   (list "-dynamic"  "-bundle")
-   #+(or x86 x86-64)
-   (list "-arch" "x86_64" "-arch" "i386")
-   #-sbcl
-   (list "/usr/lib/bundle1.o" "-flat_namespace" "-undefined" "suppress")))
-
-;;; Separate class so that we don't mess up other packages
-(defclass uffi-c-source-file (c-source-file) ())
-
-(defmethod output-files ((o compile-op) (c uffi-c-source-file))
-  (list (make-pathname :name (component-name c)
-		       :type #-(or darwin macosx) "so" #+(or darwin macosx) "dylib"
-		       :defaults (component-pathname c))))
-
-(defmethod perform ((o load-op) (c uffi-c-source-file))
-  (let ((loader (intern (symbol-name '#:load-foreign-library) :uffi)))
-    (dolist (f (asdf::input-files o c))
-      (funcall loader f :module (pathname-name f)))))
-
-(defmethod perform ((o compile-op) (c uffi-c-source-file))
-  (unless (zerop (run-shell-command "~S ~S ~{~S ~}-o ~S"
-				    *gcc*
-				    (namestring (component-pathname c))
-				    *gcc-options*
-				    (namestring (car (output-files o c)))))
-    (error 'operation-error :component c :operation o)))
-
 (defsystem :linedit
   :version "0.17.5"
   :description "Readline-style library."
   :licence "MIT"
   :author "Nikodemus Siivola <nikodemus@random-state.net>"
-  :depends-on (:uffi :terminfo :osicat :alexandria)
+  :depends-on (:cffi :terminfo :osicat :alexandria)
   :defsystem-depends-on (:madeira-port)
   :components
   (
@@ -75,9 +41,9 @@
 
    ;; Backend
    (:file "backend" :depends-on ("utility-macros"))
-   (:uffi-c-source-file "terminal_glue")
+   (:file "terminal-glue")
    (:file "terminal-translations" :depends-on ("packages"))
-   (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal_glue"))
+   (:file "terminal" :depends-on ("terminal-translations" "backend" "terminal-glue"))
    (:file "smart-terminal" :depends-on ("terminal" "matcher"))
    (:file "dumb-terminal" :depends-on ("terminal"))
 
