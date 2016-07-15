@@ -64,7 +64,6 @@
   :licence "MIT"
   :author "Nikodemus Siivola <nikodemus@random-state.net>"
   :depends-on (:uffi :terminfo :osicat :alexandria)
-  :defsystem-depends-on (:madeira-port)
   :components
   (
    ;; Common
@@ -94,6 +93,6 @@
    (:module "ports"
     :depends-on ("main")
     :components
-    ((:madeira-port "sbcl" :when :sbcl)
-     (:madeira-port "ccl" :when :ccl)
-     (:madeira-port "generic" :unless (:or :sbcl :ccl))))))
+    ((:file "sbcl" :if-feature :sbcl)
+     (:file "ccl" :if-feature :ccl)
+     (:file "generic" :if-feature (:not (:or :sbcl :ccl)))))))
