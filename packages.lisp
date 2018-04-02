@@ -23,6 +23,19 @@
 
 (defpackage :linedit
   (:use :cl :osicat)
+  (:import-from :osicat-posix
+                #:getenv
+                #:ioctl
+                #:isatty
+                #:oflag
+                #:termios
+                #:tcgetattr
+                #:tcsetattr
+                #:TCSAFLUSH
+                #:TCSANOW
+                #:TIOCGWINSZ
+                #:tty-OPOST
+                #:winsize)
   (:export
    #:linedit
    #:formedit
