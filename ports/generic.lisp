@@ -22,19 +22,24 @@
 (in-package :linedit)
 
 (defun uninstall-repl ()
-  #.(format nil
-            "Uninstalls the Linedit REPL, restoring original handlers. Unsupported on ~A."
-            (lisp-implementation-type))
+  "Uninstalls the Linedit REPL, restoring original handlers. (SBCL and CCL only.)"
   (error "~S is unsupported on ~A."
          'uninstall-repl
          (lisp-implementation-type)))
 
-(defun install-repl (&key wrap-current eof-quits)
-  #.(format nil
-            "Installs Linedit at REPL. Original input handlers can be
-preserved with :WRAP-CURRENT T. Unsupported on ~A."
-            (lisp-implementation-type))
-  (declare (ignore wrap-current eof-quits))
+(defun install-repl (&key wrap-current eof-quits history killring)
+  "Installs the Linedit at REPL. (SBCL and CCL only.)
+
+WRAP-CURRENT keeps current input handlers (eg. toplevel command
+processors) in place.
+
+If EOF-QUITS is true, EOF on *STANDARD-INPUT* causes the system to
+exit after verification.
+
+HISTORY and KILLRING can be pathname designators, in which case
+they indicate the file to use for history and killring
+persistence, respectively."
+  (declare (ignore wrap-current eof-quits history killring))
   (error "~S is unsupported on ~A."
          'install-repl
          (lisp-implementation-type)))

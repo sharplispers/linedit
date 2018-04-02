@@ -27,17 +27,45 @@
 (defclass buffer ()
   ((prev :initarg :prev :accessor %buffer-prev :initform nil)
    (next :initarg :next :accessor %buffer-next :initform nil)
-   (list :initarg :list :accessor %buffer-list :initform nil)))
+   (list :initarg :list :accessor %buffer-list :initform nil)
+   ;; For file-backed buffers.
+   (pathname :initarg :pathname :initform nil :accessor %buffer-pathname)))
 
 (defun copy-buffer (buffer)
   (make-instance 'buffer
                  :prev (%buffer-prev buffer)
                  :next (%buffer-next buffer)
-                 :list (%buffer-list buffer)))
+                 :list (%buffer-list buffer)
+                 :pathname (%buffer-pathname buffer)))
+
+(defun ensure-buffer (datum)
+  ;; DATUM may be a buffer, NIL, or a pathname designator
+  (if (typep datum 'buffer)
+      datum
+      (let ((buffer (make-instance 'buffer :pathname datum)))
+        (when datum
+          (with-open-file (f datum
+                             :direction :input
+                             :if-does-not-exist nil
+                             :external-format :utf-8)
+            (when f
+              (loop for line = (read-line f nil)
+                    while line
+                    do (push line (%buffer-list buffer)))
+              (setf (%buffer-prev buffer) (%buffer-list buffer)))))
+        buffer)))
 
 (defun buffer-push (string buffer)
   (unless (equal string (car (%buffer-list buffer)))
     (push string (%buffer-list buffer))
+    (let ((pathname (%buffer-pathname buffer)))
+      (when pathname
+        (with-open-file (f pathname
+                           :direction :output
+                           :if-does-not-exist :create
+                           :if-exists :append
+                           :external-format :utf-8)
+          (write-line string f))))
     (setf (%buffer-next buffer) nil
           (%buffer-prev buffer) (%buffer-list buffer))))
 

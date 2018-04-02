@@ -75,19 +75,19 @@
 	     (push c chars))))
     (let ((chord
 	   (acase (read-char)
-		  (#\Esc
-		   (cons it (acase (read-char)
-				   (#\[ (cons
-					 it
-					 (let ((char (read-char)))
-					   (if (digit-char-p char)
-					       (cons char
-						     (read-open-chord))
-					       (list char)))))
-				   (t (list it)))))
-		  (t (if (graphic-char-p it)
-			 it
-			 (char-code it))))))
+	     (#\Esc
+	      (cons it (acase (read-char)
+			 (#\[ (cons
+			       it
+			       (let ((char (read-char)))
+				 (if (digit-char-p char)
+				     (cons char
+					   (read-open-chord))
+				     (list char)))))
+			 (t (list it)))))
+	     (t (if (graphic-char-p it)
+		    it
+		    (char-code it))))))
       (gethash chord
 	       (backend-translations backend)
 	       (if (characterp chord)
