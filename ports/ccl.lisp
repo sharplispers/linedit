@@ -83,6 +83,6 @@
 			 "#.''end-of-file"))))))
 	(if wrap-current
 	    (with-input-from-string (s (repl-reader))
-	      (funcall (ccl:method-function original) s))
+              (funcall (ccl:method-function original-rtf) s))
 	    (values (read-from-string (repl-reader)) file-name t))))
     t))
