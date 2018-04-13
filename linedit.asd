@@ -25,10 +25,12 @@
 (in-package :linedit-system)
 
 (defsystem :linedit
-  :version "0.17.5"
+  :version "0.17.6"
   :description "Readline-style library."
   :licence "MIT"
   :author "Nikodemus Siivola <nikodemus@random-state.net>"
+  :maintainer "Anmol Khirbat <anmol@khirbat.net>"
+  :homepage "https://github.com/sharplispers/linedit"
   :depends-on (:cffi :terminfo :osicat :alexandria)
   :components
   (

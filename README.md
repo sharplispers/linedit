@@ -5,14 +5,31 @@ Linedit is basically portable between implementations, but most
 development and testing has so far been carried out on SBCL - but CCL at
 least is expected to work as well.
 
-Linedit homepage is technically http://common-lisp.net/project/linedit/
-but it is woefully out of date. The canonical place to get linedit is
+The canonical place to get linedit is
 
-    https://github.com/nikodemus/linedit
+    https://github.com/sharplispers/linedit
 
 but unless you want to hack on linedit you should take the Quicklisp
-version! To report a bug submit a github issue at the above URL. For
+version! To report a bug submit a GitHub issue at the above URL. For
 patches please submit a pull request from a topic-branch.
+
+Features
+========
+
+* single-line text reader
+* multi-line form reader
+* completions on packages and symbols in current image
+* completions on directories and filenames
+* apropos-word and describe-word
+* unlimited undo
+* unlimited kill-ring
+* unlimited history
+* paren matching (not across lines)
+* multiple histories
+* use in REPL on SBCL and Clozure CL
+* paging
+* fully customizable in CL
+* works on Linux, FreeBSD, macOS
 
 Usage
 =====
@@ -23,6 +40,8 @@ Usage
 
     > (linedit:formedit :prompt1 "=> " :prompt2 "|   ")
 
+Meta-H in the prompt displays help.
+(Try ESC-H if your terminal misbehaves with meta-proper.)
 
 Linedit in the REPL
 ===================
@@ -31,7 +50,7 @@ SBCL and CCL only for now:
 
     (linedit:install-repl :wrap-current t :eof-quits t)
 
-in eg. your Lisp initialization file (~/.sbclrc for SBCL). If you
+in e.g. your Lisp initialization file (~/.sbclrc for SBCL). If you
 don't want to preserve your current input handler you can omit the
 WRAP-CURRENT keyword.
 
@@ -57,7 +76,7 @@ Results are unspecified if \*STANDARD-INPUT* has been bound or altered.
 starting to accept input.
 
 Further keyword arguments to LINEDIT are an advanced and undocumented
-topic, but if you're willing to dive into sources you can eg. use
+topic, but if you're willing to dive into sources you can e.g. use
 multiple kill-rings not shared between different invocations of
 LINEDIT, or change the function responsible for providing input
 completion.
@@ -78,7 +97,7 @@ spans multiple lines (prefixing every but first line of input from the
 user perspective.)
 
 Further keyword arguments to FORMEDIT are an advanced and undocumented
-topic, but if you're willing to dive into sources you can eg. use
+topic, but if you're willing to dive into sources you can e.g. use
 multiple kill-rings not shared between different invocations of
 FORMEDIT, or change the function responsible for providing input
 completion.

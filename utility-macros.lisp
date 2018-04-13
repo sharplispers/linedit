@@ -56,13 +56,13 @@
   (with-unique-names (value)
     `(let ((,value ,condition))
        (unless ,value
-	 (let ((*print-pretty* nil))
-	   (error "BUG: You seem to have found a bug in Linedit. Please report ~
-                   this incident along with directions to reproduce and the ~
-                   following message to linedit-devel@common-lisp.net:~
+         (let ((*print-pretty* nil))
+           (error "BUG: You seem to have found a bug in Linedit.~%~
+                   Please report this incident along with directions to reproduce to~%    ~
+                   https://github.com/sharplispers/linedit~%~%~
                    ~
-                     `Invariant ~S violated.'"
-		  ',condition))))))
+                     'Invariant ~S violated.'"
+                  ',condition))))))
 
 (defmacro ensure (symbol expr)
   `(or ,symbol (setf ,symbol ,expr)))
