@@ -113,3 +113,6 @@
 (defcommand "Page-down")
 (defcommand "Home" 'move-to-bol)
 (defcommand "End" 'move-to-eol)
+
+(defcommand "C-Right-arrow" 'forward-sexp)
+(defcommand "C-Left-arrow" 'backward-sexp)

@@ -112,3 +112,6 @@
 (deftrans "Page-down"   (#\Esc #\[ #\6 #\~))
 (deftrans "Home"        (#\Esc #\[ #\7 #\~) (#\Esc #\[ #\1 #\~) (#\Esc #\[ #\H))
 (deftrans "End"         (#\Esc #\[ #\8 #\~) (#\Esc #\[ #\4 #\~) (#\Esc #\[ #\F))
+
+(deftrans "C-Right-arrow" (#\Esc #\[ #\1 #\; #\5 #\C))
+(deftrans "C-Left-arrow"  (#\Esc #\[ #\1 #\; #\5 #\D))
