@@ -80,6 +80,20 @@
   (declare (ignore chord editor))
   (throw 'linedit-done t))
 
+(defun new-sexp (chord editor)
+  (declare (ignore chord editor))
+  (with-editor-point-and-string ((point string) editor)
+    (move-to-eol chord editor)
+    (add-char #\( editor)
+    (incf (get-point editor))
+    (move-to-eol chord editor)
+    (add-char #\) editor)
+    (decf (get-point editor))))
+
+(defun clear-screen (chord editor)
+  (declare (ignore chord))
+  (terminal-clear-screen))
+
 ;;; CASE CHANGES
 
 (flet ((frob-case (frob editor)

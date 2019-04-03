@@ -51,8 +51,21 @@
   (flet ((read-open-chord ()
 	   (do ((chars nil)
 		(c #1=(read-char) #1#))
-	       ((member c '(#\- #\~ #\$)) (nconc (nreverse chars) (list c)))
-	     (push c chars))))
+	       ((or (member c '(#\- #\~ #\$))
+                    (if (char-equal c #\;)
+                        (let ((c1 (read-char))
+                              (c2 (read-char)))
+                          (push #\; chars)
+                          (push c1 chars)
+                          (push c2 chars)
+                          ;; (format t "add (~A,~A,~A): chars:~A~%"
+                          ;; 	c c1 c2 chars)
+                          t)))
+                (nconc (nreverse chars)
+                       (if (char-not-equal c #\;)
+                           (list c))))
+	     (when (char-not-equal c #\;)
+	       (push c chars)))))
     (let ((chord
 	   (acase (read-char)
 	     (#\Esc
@@ -63,7 +76,8 @@
 				 (if (digit-char-p char)
 				     (cons char
 					   (read-open-chord))
-				     (list char)))))
+                                     (when (char-not-equal char #\;)
+				       (list char))))))
 			 (t (list it)))))
 	     (t (if (graphic-char-p it)
 		    it

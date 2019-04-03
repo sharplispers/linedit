@@ -41,6 +41,10 @@
        (or ti:column-address (and ti:cursor-left ti:cursor-right))
        (or ti:auto-right-margin ti:enter-am-mode)))
 
+(defun terminal-clear-screen ()
+  (when ti:clear-screen
+    (format t "~A~A" ti:clear-screen (editor-prompt *editor*))))
+
 (defmethod backend-init ((backend smart-terminal))
   (call-next-method)
   (when ti:enter-am-mode
