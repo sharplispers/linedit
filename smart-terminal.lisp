@@ -42,7 +42,8 @@
        (or ti:auto-right-margin ti:enter-am-mode)))
 
 (defun terminal-clear-screen ()
-     (ti:tputs ti:clear-screen))
+  (when ti:clear-screen
+    (format t "~A~A" ti:clear-screen (editor-prompt *editor*))))
 
 (defmethod backend-init ((backend smart-terminal))
   (call-next-method)
