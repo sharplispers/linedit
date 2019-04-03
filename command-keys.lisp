@@ -65,7 +65,7 @@
 (defcommand "M-K")
 (defcommand "M-L" 'downcase-word)
 (defcommand "M-M")
-(defcommand "M-N")
+(defcommand "M-N" 'new-sexp)
 (defcommand "M-O")
 (defcommand "M-P")
 (defcommand "M-Q")
