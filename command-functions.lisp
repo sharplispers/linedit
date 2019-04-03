@@ -90,6 +90,10 @@
     (add-char #\) editor)
     (decf (get-point editor))))
 
+(defun clear-screen (chord editor)
+  (declare (ignore chord))
+  (terminal-clear-screen))
+
 ;;; CASE CHANGES
 
 (flet ((frob-case (frob editor)

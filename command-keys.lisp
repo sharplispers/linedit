@@ -36,7 +36,7 @@
 (defcommand "C-G")
 (defcommand "C-J")
 (defcommand "C-K" 'kill-to-eol)
-(defcommand "C-L")
+(defcommand "C-L" 'clear-screen)
 (defcommand "C-N" 'history-next)
 (defcommand "C-O" 'close-all-sexp)
 (defcommand "C-P" 'history-previous)
