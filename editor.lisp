@@ -64,19 +64,21 @@
 
 (defvar *announced* nil)
 
-(defun make-editor (&rest args)
+(defun make-editor (&rest args &key quiet &allow-other-keys)
   (ti:set-terminal)
   (let* ((type (if (smart-terminal-p)
                    'smart-editor
                    'dumb-editor))
          (spec (list *version* type)))
-    (unless (equal *announced* spec)
-      (format t "~&Linedit version ~A, ~A mode, ESC-h for help.~%"
-              *version*
-              (if (eq 'smart-editor type)
-                  "smart"
-                  "dumb"))
-      (setf *announced* spec))
+    (unless quiet
+      (unless (equal *announced* spec)
+        (format t "~&Linedit version ~A, ~A mode, ESC-h for help.~%"
+                *version*
+                (if (eq 'smart-editor type)
+                    "smart"
+                    "dumb"))
+        (setf *announced* spec)))
+    (remf args :quiet)
     (apply 'make-instance type args)))
 
 ;;; undo
