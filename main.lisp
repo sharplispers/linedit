@@ -23,7 +23,7 @@
 
 (defvar *editor* nil)
 
-(defun linedit (&rest keyword-args &key prompt history killring &allow-other-keys)
+(defun linedit (&rest keyword-args &key prompt history killring quiet &allow-other-keys)
   "Reads a single line of input with line-editing from standard input
 of the process and returns it as a string.
 
@@ -73,7 +73,7 @@ completion."
 
 (defvar *level* 0)
 
-(defun formedit (&rest args &key (prompt1 "") (prompt2 "") history killring
+(defun formedit (&rest args &key (prompt1 "") (prompt2 "") history killring quiet
 		 &allow-other-keys)
   "Reads a single form (s-expession) of input with line-editing from
 standard input of the process and returns it as a string.
