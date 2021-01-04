@@ -103,7 +103,7 @@ completion."
     (catch 'form-done
       (let ((eof-marker (gensym "EOF"))
 	    (table (copy-readtable)))
-	;; FIXME: It would be nice to provide an interace of some sort that
+	;; FIXME: It would be nice to provide an interface of some sort that
 	;; the user could use to alter the crucial reader macros in custom readtables.
 	(set-macro-character #\: #'colon-reader nil table)
 	(set-macro-character #\, (constantly (values)) nil table)

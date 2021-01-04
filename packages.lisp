@@ -23,6 +23,17 @@
 
 (defpackage :linedit
   (:use :cl :osicat)
+
+  (:local-nicknames
+   (#:a      #:alexandria)
+
+   (#:hi     #:eclector.examples.highlight)
+   (#:cst    #:eclector.examples.highlight.cst)
+   (#:render #:eclector.examples.highlight.render))
+
+  (:shadow
+   #:stream)
+
   (:import-from :osicat-posix
                 #:getenv
                 #:ioctl
@@ -36,6 +47,7 @@
                 #:TIOCGWINSZ
                 #:tty-OPOST
                 #:winsize)
+
   (:export
    #:linedit
    #:formedit

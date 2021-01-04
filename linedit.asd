@@ -31,7 +31,8 @@
   :author "Nikodemus Siivola <nikodemus@random-state.net>"
   :maintainer "Anmol Khirbat <anmol@khirbat.net>"
   :homepage "https://github.com/sharplispers/linedit"
-  :depends-on (:cffi :terminfo :osicat :alexandria)
+  :depends-on (:cffi :terminfo :osicat :alexandria
+               "eclector.examples.highlight")
   :components
   (
    ;; Common
@@ -39,6 +40,7 @@
    (:file "utility-functions" :depends-on ("packages"))
    (:file "utility-macros" :depends-on ("packages" "utility-functions"))
    (:file "matcher" :depends-on ("packages"))
+   (:file "syntax-highlighting" :depends-on ("packages"))
 
    ;; Backend
    (:file "backend" :depends-on ("utility-macros"))

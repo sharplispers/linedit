@@ -19,7 +19,7 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(in-package :linedit)
+(in-package #:linedit)
 
 #-sbcl
 (error "Attempt to load an SBCL-specific file in another implementation.")
@@ -28,66 +28,65 @@
   (declare (type (or null function) prompt-fun read-form-fun))
 
   (macrolet ((enforce-consistent-state ()
-	       `(invariant (or (and prompt-fun read-form-fun)
-			       (not (or prompt-fun read-form-fun))))))
+               `(invariant (or (and prompt-fun read-form-fun)
+                               (not (or prompt-fun read-form-fun))))))
 
     (defun uninstall-repl ()
       (enforce-consistent-state)
       (if prompt-fun
-	  (setf sb-int:*repl-prompt-fun* prompt-fun
-		sb-int:*repl-read-form-fun* read-form-fun
-		prompt-fun nil
-		read-form-fun nil)
-	  (warn "UNINSTALL-REPL failed: No Linedit REPL present."))
+          (setf sb-int:*repl-prompt-fun* prompt-fun
+                sb-int:*repl-read-form-fun* read-form-fun
+                prompt-fun nil
+                read-form-fun nil)
+          (warn "UNINSTALL-REPL failed: No Linedit REPL present."))
       nil)
 
 
     (defun install-repl (&rest args &key wrap-current eof-quits history killring  &allow-other-keys)
       (enforce-consistent-state)
       (let ((args (copy-list args)))
-	(dolist (key '(:wrap-current :eof-quits
-		       :history :killring))
-	  (remf args key))
-	(when prompt-fun
-	  (warn "INSTALL-REPL failed: Linedit REPL already installed.")
-	  (return-from install-repl nil))
-	(setf prompt-fun sb-int:*repl-prompt-fun*
-	      read-form-fun sb-int:*repl-read-form-fun*)
-	(flet ((repl-reader (in out)
-		 (declare (type stream out)
-			  (ignore in))
-		 (fresh-line out)
-		 (let ((prompt (with-output-to-string (s)
-				 (funcall prompt-fun s))))
-		   (handler-case
-		       (apply #'linedit:formedit
-			      :prompt1 prompt
-			      :prompt2 (make-string (length prompt) 
-						    :initial-element #\Space)
-			      :history history
-			      :killring killring
-			      args)
-		     (end-of-file (e)
-		       (if eof-quits
-			   (and (fresh-line) (eof-handler "SBCL" #'sb-ext:quit))
-			   ;; Hackins, I know.
-			   "#.''end-of-file"))))))
-	  (setf sb-int:*repl-prompt-fun* (constantly ""))
-	  (setf sb-int:*repl-read-form-fun*
-		(if wrap-current
-		    (lambda (in out)
-		      (declare (type stream out in))
-		      ;; FIXME: Yich.
-		      (terpri)
-		      (with-input-from-string (in (repl-reader in out))
-			(funcall read-form-fun in out)))
-		    (lambda (in out)
-		      (declare (type stream out in))
-		      (handler-case (read-from-string (repl-reader in out))
-			(end-of-file ()
-			  ;; We never get here if eof-quits is true, so...
-			  (fresh-line)
-			  (write-line "#<end-of-file>")
-			  (values)))))))
-	t))))
-
+        (dolist (key '(:wrap-current :eof-quits
+                       :history :killring))
+          (remf args key))
+        (when prompt-fun
+          (warn "INSTALL-REPL failed: Linedit REPL already installed.")
+          (return-from install-repl nil))
+        (setf prompt-fun sb-int:*repl-prompt-fun*
+              read-form-fun sb-int:*repl-read-form-fun*)
+        (flet ((repl-reader (in out)
+                 (declare (type cl:stream out)
+                          (ignore in))
+                 (fresh-line out)
+                 (let ((prompt (with-output-to-string (s)
+                                 (funcall prompt-fun s))))
+                   (handler-case
+                       (apply #'linedit:formedit
+                              :prompt1 prompt
+                              :prompt2 (make-string (length prompt)
+                                                    :initial-element #\Space)
+                              :history history
+                              :killring killring
+                              args)
+                     (end-of-file (e)
+                       (if eof-quits
+                           (and (fresh-line) (eof-handler "SBCL" #'sb-ext:quit))
+                           ;; Hackins, I know.
+                           "#.''end-of-file"))))))
+          (setf sb-int:*repl-prompt-fun* (constantly ""))
+          (setf sb-int:*repl-read-form-fun*
+                (if wrap-current
+                    (lambda (in out)
+                      (declare (type cl:stream out in))
+                      ;; FIXME: Yich.
+                      (terpri)
+                      (with-input-from-string (in (repl-reader in out))
+                        (funcall read-form-fun in out)))
+                    (lambda (in out)
+                      (declare (type cl:stream out in))
+                      (handler-case (read-from-string (repl-reader in out))
+                        (end-of-file ()
+                          ;; We never get here if eof-quits is true, so...
+                          (fresh-line)
+                          (write-line "#<end-of-file>")
+                          (values)))))))
+        t))))

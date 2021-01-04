@@ -1,5 +1,5 @@
 ;; Copyright (c) 2003 Nikodemus Siivola
-;; 
+;;
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
 ;; "Software"), to deal in the Software without restriction, including
@@ -7,10 +7,10 @@
 ;; distribute, sublicense, and/or sell copies of the Software, and to
 ;; permit persons to whom the Software is furnished to do so, subject to
 ;; the following conditions:
-;; 
+;;
 ;; The above copyright notice and this permission notice shall be included
 ;; in all copies or substantial portions of the Software.
-;; 
+;;
 ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 ;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 ;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -30,10 +30,10 @@
   (if nil
       (ti:tputs ti:column-address n)
       (cond ((< n current)
-	     (loop repeat (- current n) 
+	     (loop repeat (- current n)
 		   do (ti:tputs ti:cursor-left)))
 	    ((> n current)
-	     (loop repeat (- n current) 
+	     (loop repeat (- n current)
 		   do (ti:tputs ti:cursor-right))))))
 
 (defun smart-terminal-p ()
@@ -101,38 +101,38 @@
 	    old-point 0
 	    old-col 0
 	    old-row 1))
-    (multiple-value-bind (marked-line markup)
+    (multiple-value-bind (marked-line new-point character-count)
 	(if markup
-	    (dwim-mark-parens line point
-			      :pre-mark (paren-style)
-			      :post-mark ti:exit-attribute-mode)
-	    (values line point))
-	(let* ((full (concat prompt marked-line))
-	       (point (+ point (length prompt)))
-	       (point-row (find-row point columns))
-	       (point-col (find-col point columns))
-	       (diff (mismatch new old))
-	       (start (min* old-point point markup old-markup diff end))
-	       (start-row (find-row start columns))
-	       (start-col (find-col start columns)))
-	  (dbg "---~%")
-	  (dbg-values (subseq new start))
-	  (dbg-values rows point point-row point-col start start-row start-col
-		      old-point old-row old-col end diff)
-	  (move-in-column
-	   :col start-col 
-	   :vertical (- old-row start-row)
-	   :clear-to-eos t
-	   :current-col old-col)
-	  (write-string (subseq full start))
-	  (fix-wraparound start end columns)
-	  (move-in-column 
-	   :col point-col
-	   :vertical (- rows point-row)
-	   :current-col (find-col end columns))
-	  ;; Save state
-	  (setf	(old-string backend) new
-		(old-markup backend) markup
-		(old-point backend) point
-		(dirty-p backend) nil)))
+            (syntax-highlight line point)
+	    (values line point end))
+      (setf end (+ (length prompt) character-count))
+      (let* ((full (concat prompt marked-line))
+	     (point (+ new-point (length prompt)))
+	     (point-row (find-row point columns))
+	     (point-col (find-col point columns))
+	     (diff 0                    ; (mismatch new old)
+                   )
+	     (start (min* old-point point new-point old-markup diff end))
+	     (start-row (find-row start columns))
+	     (start-col (find-col start columns)))
+	(dbg "---~%")
+	(dbg-values (subseq new start))
+	(dbg-values rows point point-row point-col start start-row start-col
+		    old-point old-row old-col end diff)
+	(move-in-column
+	 :col start-col
+	 :vertical (- old-row start-row)
+	 :clear-to-eos t
+	 :current-col old-col)
+	(write-string (subseq full start))
+                                        ; (fix-wraparound start end columns)
+	(move-in-column
+	 :col point-col
+	 :vertical (- rows point-row)
+	 :current-col (find-col end columns))
+	;; Save state
+	(setf (old-string backend) new
+	      (old-markup backend) new-point
+	      (old-point backend) point
+	      (dirty-p backend) nil)))
     (force-output *terminal-io*)))

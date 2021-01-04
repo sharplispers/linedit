@@ -332,7 +332,7 @@
     (if completions
         (if (not (cdr completions))
             (editor-replace-word editor (car completions))
-            (print-in-columns editor completions :width (+ max-len 2)))
+            (print-in-columns editor completions :width (+ max-len 2) :highlightp t))
         (beep editor))))
 
 (defun apropos-word (chord editor)
@@ -348,7 +348,7 @@
                                     (setf longest (max longest (length str)))
                                     (string-downcase str)))
                                 apropi)))
-          (print-in-columns editor strings :width (+ longest 2))))))
+          (print-in-columns editor strings :width (+ longest 2) :highlightp t)))))
 
 (defun describe-word (chord editor)
   (declare (ignore chord))
